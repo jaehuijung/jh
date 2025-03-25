@@ -1,0 +1,64 @@
+<!--
+File Name : popuplayout.html
+Description: 팝업 페이지 공통 레이아웃(중앙컨텐츠)
+Author: 구명회
+Created On: 2025-02-06
+-->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <meta charset="UTF-8" http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="icon" type="image/x-icon" href="/images/icon/favicon.png">
+    <title>Cable Management Platform</title>
+
+    <th:block layout:fragment="css">
+        <link th:href="@{/js/common/vendor/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
+        <link th:href="@{/js/common/vendor/bootstrap/css/bootstrap-table.min.css}" rel="stylesheet">
+<!--        <link th:href="@{/js/common/vendor/SweetAlert2/sweetalert2.min.css}" rel="stylesheet">-->
+        <link th:href="@{/js/common/vendor/daterangepicker/daterangepicker.css}" rel="stylesheet">
+        <link th:href="@{/js/common/vendor/tui-pagination/dist/tui-pagination.min.css}" rel="stylesheet">
+        <link th:href="@{/js/common/vendor/tui-grid/dist/tui-grid.min.css}" rel="stylesheet">
+        <link th:href="@{/js/common/vendor/dropzone/dropzone.min.css}" rel="stylesheet">
+
+        <link th:href="@{/css/layout.css}" rel="stylesheet">
+        <link th:href="@{/css/custom-bootstrap.css}" rel="stylesheet">
+<!--        <link th:href="@{/css/custom-sweetAlert2.css}" rel="stylesheet">-->
+        <link th:href="@{/css/custom-pikaday.css}" rel="stylesheet">
+        <link th:href="@{/css/custom-toastui.css}" rel="stylesheet">
+        <link th:href="@{/css/custom-modal.css}" rel="stylesheet">
+
+    </th:block>
+</head>
+
+
+<body>
+
+<th:block layout:fragment="script">
+    <script th:src="@{/js/common/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/js/common/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/js/common/vendor/bootstrap/js/bootstrap-table.min.js}"></script>
+<!--    <script th:src="@{/js/common/vendor/SweetAlert2/sweetalert2.min.js}"></script>-->
+    <script th:src="@{/js/common/vendor/daterangepicker/moment.min.js}"></script>
+    <script th:src="@{/js/common/vendor/daterangepicker/daterangepicker.js}"></script>
+    <script th:src="@{/js/common/vendor/tui-pagination/dist/tui-pagination.min.js}"></script>
+    <script th:src="@{/js/common/vendor/tui-grid/dist/tui-grid.min.js}"></script>
+    <script th:src="@{/js/common/vendor/dropzone/dropzone.min.js}"></script>
+
+    <script th:src="@{/js/common/custom-menu.js}"></script>
+    <script th:src="@{/js/common/custom-function.js}"></script>
+<!--    <script th:src="@{/js/common/custom-sweetAlert2.js}"></script>-->
+    <script th:src="@{/js/common/custom-bootstrap.js}"></script>
+    <script th:src="@{/js/common/custom-popup.js}"></script>
+    <script th:src="@{/js/common/custom-toastui.js}"></script>
+    <script th:src="@{/js/common/custom-modal.js}"></script>
+</th:block>
+
+<div class="layout">
+    <th:block layout:fragment="content"></th:block>
+</div>
+
+</body>
+
+</html>

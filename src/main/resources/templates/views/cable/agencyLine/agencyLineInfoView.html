@@ -1,0 +1,520 @@
+<!--
+  File Name : agencyLineInfoView.html
+  Description: 선번장관리 > 기관회선관리 > 케이블 수정 팝업
+  Author: 구명회
+  Created On: 2025-02-06
+  Revision History:
+    - 2025-02-06: 팝업 페이지 퍼블리싱 완료
+    - (수정) Flex 레이아웃 적용 및 코드 정리
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/popuplayout}">
+<head>
+    <!-- 필요한 CSS/JS 리소스는 popuplayout.html 등에서 로드된다고 가정 -->
+</head>
+
+<main layout:fragment="content"
+      style="
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        background-color: #f5f5f5;
+      ">
+
+    <!-- [1] 케이블 정보수정 영역 -->
+    <div style="margin: 25px; background-color: #fff;">
+        <div class="custom-width-760">
+            <div class="flex-row-between custom-padding-10">
+                <p style="margin: 0;">정보수정</p>
+                <div class="custom-button-wrap custom-margin-left-10">
+                    <button type="button" class="custom-btn custom-blue-btn" onclick="saveCableInfo()">
+                        <img src="/images/icon/etc/register.svg" alt="등록" class="btn-icon">등록
+                    </button>
+                </div>
+            </div>
+
+            <div class="tbl-bootstrap-wrap custom-border-top-solid" style="flex: 1; overflow: auto; padding: 10px;">
+                <!-- Hidden fields for data tracking -->
+                <input type="hidden" id="install_id" name="install_id" th:value="${cableInfo.install_id}" />
+                <input type="hidden" id="old_start_asset_id" name="old_start_asset_id" th:value="${cableInfo.start_asset_id}" />
+                <input type="hidden" id="old_end_asset_id" name="old_end_asset_id" th:value="${cableInfo.end_asset_id}" />
+
+                <table class="table-hover-delete">
+                    <tbody>
+                    <tr>
+                        <td rowspan="5" class="custom-tb-title custom-width-2per">
+                            <label class="custom-tb-title-text">START</label>
+                        </td>
+                        <td class="custom-tb-title custom-width-2per">
+                            <label for="start_asset_id" class="custom-tb-title-text">자산ID</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-13per">
+                            <input id="start_asset_id" name="start_asset_id"
+                                   class="custom-input custom-width-70per"
+                                   th:value="${cableInfo.start_asset_id}" />
+                            <button type="button" class="custom-btn custom-blue-btn" onclick="searchAssetButton('#start_asset_id')">
+                                검색
+                            </button>
+                        </td>
+                        <td rowspan="5" class="custom-tb-title custom-width-2per">
+                            <label class="custom-tb-title-text">END</label>
+                        </td>
+                        <td class="custom-tb-title custom-width-2per">
+                            <label for="end_asset_id" class="custom-tb-title-text">자산ID</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="end_asset_id" name="end_asset_id"
+                                   class="custom-input custom-width-70per"
+                                   th:value="${cableInfo.end_asset_id}" />
+                            <button type="button" class="custom-btn custom-blue-btn" onclick="searchAssetButton('#end_asset_id')">
+                                검색
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="custom-tb-title custom-width-2per">
+                            <label for="start_config_id" class="custom-tb-title-text">구성ID</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="start_config_id" name="start_config_id" class="custom-input custom-width-70per"
+                                   th:value="${#maps.containsKey(cableInfo, 'start_config_id') ? cableInfo.start_config_id : ''}" />
+                        </td>
+                        <td class="custom-tb-title custom-width-2per">
+                            <label for="end_config_id" class="custom-tb-title-text">구성ID</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="end_config_id" name="end_config_id" class="custom-input custom-width-70per"
+                                   th:value="${#maps.containsKey(cableInfo, 'end_config_id') ? cableInfo.end_config_id : ''}" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="custom-tb-title custom-width-2per">
+                            <label for="start_location" class="custom-tb-title-text">좌표</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="start_location" name="start_location" class="custom-input custom-width-70per"
+                                   th:value="${#maps.containsKey(cableInfo, 'start_location') ? cableInfo.start_location : ''}" />
+                        </td>
+                        <td class="custom-tb-title custom-width-2per">
+                            <label for="end_location" class="custom-tb-title-text">좌표</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="end_location" name="end_location" class="custom-input custom-width-70per"
+                                   th:value="${#maps.containsKey(cableInfo, 'end_location') ? cableInfo.end_location : ''}" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="custom-tb-title custom-width-2per">
+                            <label for="start_eqp_name" class="custom-tb-title-text">업무명</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="start_eqp_name" name="start_eqp_name" class="custom-input custom-width-70per"
+                                   th:value="${#maps.containsKey(cableInfo, 'start_eqp_name') ? cableInfo.start_eqp_name : ''}" />
+                        </td>
+                        <td class="custom-tb-title custom-width-2per">
+                            <label for="end_eqp_name" class="custom-tb-title-text">업무명</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="end_eqp_name" name="end_eqp_name" class="custom-input custom-width-70per"
+                                   th:value="${#maps.containsKey(cableInfo, 'end_eqp_name') ? cableInfo.end_eqp_name : ''}" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="custom-tb-title custom-width-2per">
+                            <label for="start_port" class="custom-tb-title-text">포트</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="start_port" name="start_port" class="custom-input custom-width-70per"
+                                   th:value="${#maps.containsKey(cableInfo, 'start_port') ? cableInfo.start_port : ''}" />
+                        </td>
+                        <td class="custom-tb-title custom-width-2per">
+                            <label for="end_port" class="custom-tb-title-text">포트</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="end_port" name="end_port" class="custom-input custom-width-70per"
+                                   th:value="${#maps.containsKey(cableInfo, 'end_port') ? cableInfo.end_port : ''}" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="2" class="custom-tb-title custom-width-2per">
+                            <label for="line_status" class="custom-tb-title-text">회선상태</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <select id="line_status" name="line_status" class="custom-select custom-width-30per">
+                                <option value="활성" th:selected="${cableInfo['line_status'] == '활성'}">사용</option>
+                                <option value="정지" th:selected="${cableInfo['line_status'] == '정지'}">정지</option>
+                            </select>
+                        </td>
+                        <td colspan="2" class="custom-tb-title custom-width-2per">
+                            <label class="custom-tb-title-text">전용회선번호</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <div style="display: flex; flex-direction: column; gap: 5px;">
+                                <select id="dedicated_line_category" name="dedicated_line_category"
+                                        class="custom-select custom-width-20per">
+                                    <option value="">선택</option>
+                                    <option value="1" th:selected="${cableInfo['dedicated_line_category'] == '1'}">SKT</option>
+                                    <option value="2" th:selected="${cableInfo['dedicated_line_category'] == '2'}">KT</option>
+                                    <option value="3" th:selected="${cableInfo['dedicated_line_category'] == '3'}">LGU+</option>
+                                    <option value="9" th:selected="${cableInfo['dedicated_line_category'] == '9'}">기타</option>
+                                </select>
+                                <input id="dedicated_line_number" name="dedicated_line_number"
+                                       class="custom-input custom-width-70per"
+                                       th:value="${#maps.containsKey(cableInfo, 'dedicated_line_number') ? cableInfo.dedicated_line_number : ''}" />
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="2" class="custom-tb-title custom-width-2per">
+                            <label for="cable_type" class="custom-tb-title-text">케이블타입</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <select id="cable_type" name="cable_type" class="custom-select custom-width-30per">
+                                <option value="광" th:selected="${cableInfo.cable_type == '광'}">광</option>
+                                <option value="UTP" th:selected="${cableInfo.cable_type == 'UTP'}">UTP</option>
+                            </select>
+                        </td>
+                        <td colspan="2" class="custom-tb-title custom-width-2per">
+                            <label for="cable_color" class="custom-tb-title-text">케이블색상</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <select id="cable_color" name="cable_color" class="custom-select custom-width-30per">
+                                <option value="적색" th:selected="${cableInfo.cable_color == '적색'}">적색</option>
+                                <option value="회색" th:selected="${cableInfo.cable_color == '회색'}">회색</option>
+                                <option value="노란색" th:selected="${cableInfo.cable_color == '노란색'}">노란색</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="2" class="custom-tb-title custom-width-2per">
+                            <label for="cable_length" class="custom-tb-title-text">케이블길이</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="cable_length" name="cable_length"
+                                   class="custom-input custom-width-70per"
+                                   th:value="${cableInfo.cable_length}" />
+                        </td>
+                        <td colspan="2" class="custom-tb-title custom-width-2per">
+                            <label for="install_date" class="custom-tb-title-text">포설일자</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="install_date" type="text" name="single-datetime"
+                                   class="custom-input custom-width-150"
+                                   th:value="${#maps.containsKey(cableInfo, 'install_date') ? cableInfo.install_date : ''}" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="2" class="custom-tb-title custom-width-2per">
+                            <label for="remark" class="custom-tb-title-text">비고</label>
+                        </td>
+                        <td colspan="6" class="custom-tb-content custom-width-11per">
+                            <input id="remark" name="remark" class="custom-input custom-width-70per"
+                                   th:value="${#maps.containsKey(cableInfo, 'remark') ? cableInfo.remark : ''}" />
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- [2] 패치 정보수정 영역 -->
+    <div style="margin: 25px; background-color: #fff;">
+        <div class="custom-width-760">
+            <div class="flex-row-between custom-padding-10">
+                <p style="margin: 0;">패치 정보수정</p>
+            </div>
+            <div class="tbl-bootstrap-wrap custom-border-top-solid">
+                <table class="table-hover-delete">
+                    <tbody>
+                    <tr>
+                        <td colspan="2" class="custom-tb-title custom-width-2per">
+                            <label class="custom-tb-title-text">검색항목</label>
+                        </td>
+                        <td colspan="6" class="custom-tb-content custom-width-11per">
+                            <label class="custom-radio">
+                                <input type="radio" name="radio-group" value="horizontal" checked />
+                                <span></span>수평
+                            </label>
+                            <!--
+                            <label class="custom-radio">
+                                <input type="radio" name="radio-group" value="vertical-tps" />
+                                <span></span>수직-TPS(2층기준)
+                            </label>
+                            -->
+                            <label class="custom-radio">
+                                <input type="radio" name="radio-group" value="vertical" />
+                                <span></span>수직
+                            </label>
+                            <button type="button" class="custom-btn custom-blue-btn" onclick="searchPatchButton()">
+                                검색
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="2" class="custom-tb-title custom-width-2per">
+                            <label for="horizontal_1_1" class="custom-tb-title-text">수평1</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="horizontal_1_1" name="horizontal_1_1" class="custom-input"
+                                   th:value="${cableInfo.horizontal_1_1}"
+                                   readonly />
+                        </td>
+                        <td colspan="2" class="custom-tb-title custom-width-2per">
+                            <label for="horizontal_1_2" class="custom-tb-title-text">수평2</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="horizontal_1_2" name="horizontal_1_2"
+                                   class="custom-input custom-width-70per"
+                                   th:value="${cableInfo.horizontal_1_2}"
+                                   readonly />
+                            <button type="button" class="custom-btn custom-blue-btn" onclick="deletePatchButton('horizontal_1')">
+                                삭제
+                            </button>
+                            <input type="hidden" id="horizontal_1_id" name="horizontal_1_id"
+                                   th:value="${cableInfo.horizontal_1_id}" />
+                        </td>
+                    </tr>
+
+                    <!--
+                       동일한 패턴의 DSTP, DR 등은 주석 처리
+                       필요 시 활성화
+                    -->
+
+                    <tr>
+                        <td colspan="2" class="custom-tb-title custom-width-2per">
+                            <label for="vertical_1_1" class="custom-tb-title-text">수직1-1</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="vertical_1_1" name="vertical_1_1"
+                                   class="custom-input"
+                                   th:value="${cableInfo.vertical_1_1}"
+                                   readonly />
+                        </td>
+                        <td colspan="2" class="custom-tb-title custom-width-2per">
+                            <label for="vertical_1_2" class="custom-tb-title-text">수직1-2</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="vertical_1_2" name="vertical_1_2"
+                                   class="custom-input custom-width-70per"
+                                   th:value="${cableInfo.vertical_1_2}"
+                                   readonly />
+                            <button type="button" class="custom-btn custom-blue-btn" onclick="deletePatchButton('vertical_1')">
+                                삭제
+                            </button>
+                            <input type="hidden" id="vertical_1_id" name="vertical_1_id"
+                                   th:value="${cableInfo.vertical_1_id}" />
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- [3] 스크립트 영역 -->
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+            // 자산 검색 팝업
+            function searchAssetButton(selector) {
+                let assetValue = $(selector).val();
+                popupManager.Prompt({
+                    url: "/cable/agency/cableInfoAssetView?asset_id=" + encodeURIComponent(assetValue),
+                    title: "",
+                    width: 800,
+                    height: 680
+                }).then((result) => {
+                    if (!result) return;
+                    const { asset_id, config_id, eqp_name, location, port } = result;
+
+                    if (selector.includes("start")) {
+                        $("#start_asset_id").val(asset_id);
+                        $("#start_config_id").val(config_id);
+                        $("#start_location").val(location);
+                        $("#start_eqp_name").val(eqp_name);
+                        $("#start_port").val(port);
+                    } else {
+                        $("#end_asset_id").val(asset_id);
+                        $("#end_config_id").val(config_id);
+                        $("#end_location").val(location);
+                        $("#end_eqp_name").val(eqp_name);
+                        $("#end_port").val(port);
+                    }
+                }).catch((error) => {
+                    console.error("Popup error:", error);
+                });
+            }
+
+            // 패치 검색 팝업
+            function searchPatchButton() {
+                const selectedValue = document.querySelector('input[name="radio-group"]:checked').value;
+                let height = (selectedValue === "vertical" || selectedValue === "vertical-tps") ? 760 : 680;
+
+                popupManager.Prompt({
+                    url: "/cable/agency/cableInfoPatchView?category=" + selectedValue,
+                    title: "",
+                    width: 800,
+                    height: height
+                }).then((result) => {
+                    if (!result) return;
+                    const { type, connection_id, main_patch_port_concat, sub_patch_port_concat } = result;
+                    let mainPatch = "", subPatch = "", patchId = "";
+
+                    if (type === "horizontal") {
+                        mainPatch = "horizontal_1_1";
+                        subPatch  = "horizontal_1_2";
+                        patchId   = "horizontal_1_id";
+                    } else if (type === "vertical") {
+                        mainPatch = "vertical_1_1";
+                        subPatch  = "vertical_1_2";
+                        patchId   = "vertical_1_id";
+                    }
+
+                    document.getElementById(patchId).value = connection_id;
+                    document.getElementById(mainPatch).value = main_patch_port_concat;
+                    document.getElementById(subPatch).value = sub_patch_port_concat;
+                }).catch((error) => {
+                    console.error("Popup error:", error);
+                });
+            }
+
+            // 패치 삭제
+            function deletePatchButton(type) {
+                modalManager.show({
+                    title: "알림",
+                    html: "정말 삭제하시겠습니까? <br>삭제 후 등록 버튼을 눌러야 반영됩니다.",
+                    focusConfirm: false,
+                    confirmButtonText: "삭제",
+                    cancelButtonText: "취소",
+                    showCancelButton: true,
+                    allowOutsideClick: false
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        document.getElementById(type + "_1").value = "";
+                        document.getElementById(type + "_2").value = "";
+                    }
+                });
+            }
+
+            // 케이블 정보 저장
+            function saveCableInfo() {
+                modalManager.show({
+                    title: "알림",
+                    html: "저장하시겠습니까?",
+                    icon: "info",
+                    confirmButtonText: "저장",
+                    cancelButtonText: "취소",
+                    showCancelButton: true
+                }).then((res) => {
+                    if (!res.isConfirmed) return;
+
+                    const install_id = $("#install_id").val();
+                    const old_start_asset_id = $("#old_start_asset_id").val();
+                    const old_end_asset_id = $("#old_end_asset_id").val();
+
+                    // START / END 정보
+                    const start_asset_id = $("#start_asset_id").val();
+                    const end_asset_id   = $("#end_asset_id").val();
+                    const start_config_id = $("#start_config_id").val();
+                    const end_config_id   = $("#end_config_id").val();
+                    const start_location  = $("#start_location").val();
+                    const end_location    = $("#end_location").val();
+                    const start_eqp_name  = $("#start_eqp_name").val();
+                    const end_eqp_name    = $("#end_eqp_name").val();
+                    const start_port      = $("#start_port").val();
+                    const end_port        = $("#end_port").val();
+
+                    // 상태, 전용회선 등
+                    const line_status     = $("#line_status").val();
+                    const dedicated_line_category = $("#dedicated_line_category").val();
+                    const dedicated_line_number   = $("#dedicated_line_number").val();
+
+                    // 케이블 상세
+                    const cable_type   = $("#cable_type").val();
+                    const cable_color  = $("#cable_color").val();
+                    const cable_length = $("#cable_length").val();
+                    const install_date = $("#install_date").val();
+                    const remark       = $("#remark").val();
+
+                    // 패치 정보
+                    const horizontal_1_1  = $("#horizontal_1_1").val();
+                    const horizontal_1_2  = $("#horizontal_1_2").val();
+                    const horizontal_1_id = $("#horizontal_1_id").val();
+
+                    // DSTP 예시 (주석처리된 필드라면 필요시 해제)
+                    const dstp_1_1  = $("#dstp_1_1").val() || "";
+                    const dstp_1_2  = $("#dstp_1_2").val() || "";
+                    const dstp_1_id = $("#dstp_1_id").val() || "";
+
+                    const vertical_1_1  = $("#vertical_1_1").val();
+                    const vertical_1_2  = $("#vertical_1_2").val();
+                    const vertical_1_id = $("#vertical_1_id").val();
+
+                    // 그 외 필요한 필드
+                    const vertical_2_1  = $("#vertical_2_1").val() || "";
+                    const vertical_2_2  = $("#vertical_2_2").val() || "";
+                    const vertical_2_id = $("#vertical_2_id").val() || "";
+                    const dr1_1  = $("#dr1_1").val() || "";
+                    const dr1_2  = $("#dr1_2").val() || "";
+                    const dr1_id = $("#dr1_id").val() || "";
+                    const dr2_1  = $("#dr2_1").val() || "";
+                    const dr2_2  = $("#dr2_2").val() || "";
+                    const dr2_id = $("#dr2_id").val() || "";
+
+                    // (예시) 사용자 아이디
+                    let upd_id = /*[[${accountData.userId}]]*/;
+
+                    $.ajax({
+                        url: "/cable/agency/saveCableInfo",
+                        method: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            install_id, old_start_asset_id, old_end_asset_id,
+                            start_asset_id, end_asset_id, start_config_id, end_config_id,
+                            start_location, end_location, start_eqp_name, end_eqp_name,
+                            start_port, end_port, line_status, dedicated_line_category,
+                            dedicated_line_number, cable_type, cable_color, cable_length,
+                            install_date, remark,
+
+                            horizontal_1_1, horizontal_1_2, horizontal_1_id,
+                            dstp_1_1, dstp_1_2, dstp_1_id,
+                            vertical_1_1, vertical_1_2, vertical_1_id,
+                            vertical_2_1, vertical_2_2, vertical_2_id,
+                            dr1_1, dr1_2, dr1_id, dr2_1, dr2_2, dr2_id,
+
+                            upd_id
+                        }),
+                        dataType: "json",
+                        success: function(res) {
+                            if (!res.errorCode) {
+                                alert("데이터를 저장하는 중 오류가 발생했습니다.");
+                                return false;
+                            }
+                            alert2("알림", "저장되었습니다!", "success", "확인");
+                        },
+                        error: function() {
+                            alert("데이터를 저장하는 중 오류가 발생했습니다.");
+                        }
+                    });
+                });
+            }
+        </script>
+    </th:block>
+</main>
+</html>

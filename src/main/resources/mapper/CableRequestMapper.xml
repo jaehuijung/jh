@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cms.gongju.cablerequest.mapper.CableRequestMapper">
+
+    <!-- 포설 신청 목록 조회 예시 -->
+    <select id="selectCableRequestList" parameterType="map" resultType="map">
+        SELECT
+        CR.REQUEST_ID
+        ,CR.ORG_NAME
+        ,CR.DEPT_NAME
+        ,CR.POSITION_TITLE
+        ,CR.WORK_PURPOSE
+        ,DATE_FORMAT(CR.WORK_START_DATE, '%Y-%m-%d') AS WORK_START_DATE
+        ,DATE_FORMAT(CR.WORK_END_DATE, '%Y-%m-%d') AS WORK_END_DATE
+        ,CR.APPROVAL_STATUS
+        ,CR.REG_DT
+        FROM tb_cable_request CR
+        WHERE CR.DEL_YN = 'N'
+        <!-- 예시) 검색조건 -->
+        <if test="orgName != null and orgName != '' ">
+            AND CR.ORG_NAME LIKE CONCAT('%', #{orgName}, '%')
+        </if>
+        <if test="approvalStatus != null and approvalStatus != '' ">
+            AND CR.APPROVAL_STATUS = #{approvalStatus}
+        </if>
+        ORDER BY CR.REQUEST_ID DESC
+    </select>
+
+    <!-- 단일 신청 조회 -->
+    <select id="selectCableRequest" parameterType="long" resultType="map">
+        SELECT
+        REQUEST_ID
+        ,ORG_NAME
+        ,DEPT_NAME
+        ,OFFICER_NAME
+        ,OFFICER_CONTACT
+        ,POSITION_TITLE
+        ,WORK_PURPOSE
+        ,WORK_DATE_TYPE
+        ,WORK_START_DATE
+        ,WORK_END_DATE
+        ,APPROVAL_STATUS
+        ,APPROVER_ID
+        ,APPROVAL_DT
+        ,APPROVAL_REMARKS
+        ,DEL_YN
+        ,REG_ID
+        ,REG_DT
+        ,UPD_ID
+        ,UPD_DT
+        FROM tb_cable_request
+        WHERE REQUEST_ID = #{requestId}
+        AND DEL_YN = 'N'
+    </select>
+
+
+
+
+
+
+
+
+    <!-- (A) Insert: tb_cable_request -->
+    <insert id="insertCableRequest">
+        <!--
+           <selectKey> 로 requestId(PK) 값 가져오기:
+           - MySQL: LAST_INSERT_ID()
+           - order="AFTER" -> Insert 완료 후 PK를 가져온다
+           - keyProperty="requestInfo.requestId" -> 자바 Map("requestId")에 세팅
+         -->
+        <selectKey keyProperty="requestInfo.requestId" resultType="long" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+
+        INSERT INTO tb_cable_request
+        (
+        request_type,
+        org_name,
+        dept_name,
+        officer_name,
+        officer_contact,
+        position_title,
+        work_purpose,
+        work_date_type,
+        work_start_date,
+        work_end_date,
+        approval_status,
+        del_yn,
+        reg_id,
+        reg_dt
+        )
+        VALUES
+        (
+        <!-- requestType 은 requestInfo.get("requestType") -->
+        #{requestInfo.requestType},
+        #{requestInfo.orgName},
+        #{requestInfo.deptName},
+        #{requestInfo.officerName},
+        #{requestInfo.officerContact},
+        #{requestInfo.positionTitle},
+        #{requestInfo.workPurpose},
+        #{requestInfo.workDateType},
+
+        <!-- workStartDate / workEndDate -->
+        <choose>
+            <when test="requestInfo.workStartDate != null and requestInfo.workStartDate != ''">
+                #{requestInfo.workStartDate}
+            </when>
+            <otherwise>null</otherwise>
+        </choose>,
+        <choose>
+            <when test="requestInfo.workEndDate != null and requestInfo.workEndDate != ''">
+                #{requestInfo.workEndDate}
+            </when>
+            <otherwise>null</otherwise>
+        </choose>,
+
+        <!-- approvalStatus 파라미터 (2번째 param) -->
+        #{approvalStatus},
+        'N',          <!-- del_yn, default 'N' -->
+        'adminUser',  <!-- reg_id, 실제로는 세션/로그인값 -->
+        NOW()
+        );
+    </insert>
+
+    <!-- (B) Update: tb_cable_request -->
+    <update id="updateCableRequest">
+        UPDATE tb_cable_request
+        SET
+            org_name       = #{requestInfo.orgName},
+            dept_name      = #{requestInfo.deptName},
+            officer_name   = #{requestInfo.officerName},
+            officer_contact= #{requestInfo.officerContact},
+            position_title = #{requestInfo.positionTitle},
+            work_purpose   = #{requestInfo.workPurpose},
+            work_date_type = #{requestInfo.workDateType},
+            work_start_date= CASE WHEN (#{requestInfo.workStartDate} IS NOT NULL AND #{requestInfo.workStartDate}!='')
+                                      THEN #{requestInfo.workStartDate}
+                                  ELSE NULL
+                END,
+            work_end_date  = CASE WHEN (#{requestInfo.workEndDate} IS NOT NULL AND #{requestInfo.workEndDate}!='')
+                                      THEN #{requestInfo.workEndDate}
+                                  ELSE NULL
+                END,
+            approval_status= #{approvalStatus},
+            upd_id         = 'admin',  -- 사용자 변경 필요
+            upd_dt         = NOW()
+        WHERE request_id = #{requestInfo.requestId}
+          AND del_yn     = 'N'
+    </update>
+
+    <!-- Worker -->
+    <delete id="deleteRequestWorker">
+        DELETE FROM tb_request_worker
+        WHERE request_id = #{requestId}
+    </delete>
+
+    <insert id="insertRequestWorker">
+        INSERT INTO tb_request_worker
+        (
+            request_id,
+            worker_id,
+            reg_id,
+            reg_dt
+        )
+        VALUES
+            (
+                #{requestId},
+                #{workerId},
+                #{regId},
+                NOW()
+            )
+    </insert>
+
+    <!-- Detail -->
+    <delete id="deleteWorkDetail">
+        DELETE FROM tb_cable_work_detail
+        WHERE request_id = #{requestId}
+    </delete>
+
+    <insert id="insertWorkDetail" parameterType="map">
+        INSERT INTO tb_cable_work_detail
+        (
+            request_id, cable_type, cable_color, cable_length,
+            start_location, end_location,
+            start_asset_id, start_component_id, start_port,
+            end_asset_id, end_component_id, end_port,
+            remarks,
+            reg_id, reg_dt
+        )
+        VALUES
+            (
+                #{requestId},
+                #{cableType},
+                #{cableColor},
+                #{cableLength},
+                #{startLocation},
+                #{endLocation},
+                #{startAssetId},
+                #{startConfigId},
+                #{startPort},
+                #{endAssetId},
+                #{endConfigId},
+                #{endPort},
+                #{remark},
+                #{regId},
+                NOW()
+            );
+    </insert>
+
+    <select id="checkInstallExists" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM tb_cable_install
+        WHERE IS_DELETED='N'
+            AND START_ASSET_ID = #{startAssetId}
+            AND START_PORT     = #{startPort}
+            AND END_ASSET_ID   = #{endAssetId}
+            AND END_PORT       = #{endPort}
+    </select>
+
+    <!-- 임시저장 tempSave Upsert -->
+    <insert id="upsertTempSave" parameterType="map">
+        INSERT INTO tb_request_temp_save
+            ( request_id, user_id, title, reg_dt )
+        VALUES
+            ( #{requestId}, #{userId}, #{title}, NOW() )
+            ON DUPLICATE KEY UPDATE
+                                 title = VALUES(title),
+                                 reg_dt= NOW()
+    </insert>
+
+    <!-- (임시저장) 목록 조회 -->
+    <select id="selectTempSaveList" resultType="map">
+        SELECT
+            t.request_id     AS requestId,
+            t.title          AS title,
+            t.user_id        AS userId,
+            DATE_FORMAT(t.reg_dt, '%Y-%m-%d %H:%i') AS regDt
+        FROM tb_request_temp_save t
+        ORDER BY t.reg_dt DESC
+    </select>
+
+</mapper>

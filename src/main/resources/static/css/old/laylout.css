@@ -1,0 +1,23 @@
+/* layout.css */
+#headerArea {
+    background: #003399;
+    color: #fff;
+    padding: 10px;
+}
+nav {
+    float: left;
+    width: 200px;
+    background: #eee;
+    min-height: 600px;
+}
+main {
+    margin-left: 210px;
+    padding: 10px;
+}
+footer {
+    clear: both;
+    background: #003399;
+    color: #fff;
+    text-align: center;
+    padding: 10px;
+}

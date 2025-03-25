@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cms.gongju.cablerequest.mapper.QrManageMapper">
+
+    <select id="selectCableByQrCode" resultType="java.util.HashMap">
+        <![CDATA[
+  SELECT
+    ci.INSTALL_ID         AS installId,
+    ci.START_ASSET_ID     AS startAssetId,
+    ci.START_PORT         AS startPort,
+    eqp1.config_id        AS startConfigId,
+    eqp1.location         AS startLocation,
+    eqp1.eqp_name         AS startEqpName,
+
+    ci.END_ASSET_ID       AS endAssetId,
+    ci.END_PORT           AS endPort,
+    eqp2.config_id        AS endConfigId,
+    eqp2.location         AS endLocation,
+    eqp2.eqp_name         AS endEqpName,
+
+    ci.CABLE_TYPE         AS cableType,
+    ci.CABLE_COLOR        AS cableColor,
+    ci.CABLE_LENGTH       AS cableLength,
+    ci.REMARKS            AS remarks,
+
+    -- 라벨 테이블 JOIN: START / END
+   /* l1.LABEL_PRINT        AS startLabelPrint,
+    l1.LABEL_COLOR        AS startLabelColor,
+    l1.QR_INFO            AS startQrInfo,
+
+    l2.LABEL_PRINT        AS endLabelPrint,
+    l2.LABEL_COLOR        AS endLabelColor,
+    l2.QR_INFO            AS endQrInfo,*/
+
+    ci.REG_ID, ci.REG_DT
+  FROM tb_cable_install ci
+    LEFT JOIN tb_eqp_temp eqp1
+           ON eqp1.asset_id = ci.START_ASSET_ID
+    LEFT JOIN tb_eqp_temp eqp2
+           ON eqp2.asset_id = ci.END_ASSET_ID
+    LEFT JOIN tb_label_info l1
+           ON l1.LABEL_ID = ci.START_LABEL_ID
+    LEFT JOIN tb_label_info l2
+           ON l2.LABEL_ID = ci.END_LABEL_ID
+
+  WHERE 1=1
+]]>
+      <!--  <if test="qrCode != null and qrCode != ''">-->
+            -- 스캔된 qrCode 값이 START 라벨의 QR_INFO이거나, END 라벨의 QR_INFO인 건
+            AND (l1.QR_INFO = #{qrCode} OR l2.QR_INFO = #{qrCode})
+       <!-- </if>-->
+        <![CDATA[
+  /*ORDER BY ci.INSTALL_ID DESC*/
+]]>
+    </select>
+
+</mapper>

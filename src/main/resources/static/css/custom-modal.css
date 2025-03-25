@@ -1,0 +1,33 @@
+#custom-modal-confirm {
+    padding: 4px 15px;
+    font-size: 0.8rem;
+    background: #0074C2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px 10px 10px 0px;
+}
+
+#custom-modal-confirm:hover {
+    background-color: rgba(0, 116, 194, 0.7);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#custom-modal-cancel {
+    padding: 4px 15px;
+    font-size: 0.8rem;
+    background: #696969;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px 10px 10px 0px;
+}
+
+#custom-modal-cancel:hover {
+    background-color: rgba(204, 204, 204, 0.7);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}

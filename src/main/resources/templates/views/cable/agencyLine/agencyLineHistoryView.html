@@ -1,0 +1,472 @@
+<!--
+File Name : agencyLineHistoryView.html
+Description: 선번장관리 > 기관회선관리 > 이력조회 팝업
+Author: 구명회
+Created On: 2025-02-06
+Revision History:
+  - 2025-02-06: 팝업 페이지 퍼블리싱 완료
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/popuplayout}">
+<head>
+    <style>
+
+    </style>
+</head>
+<main layout:fragment="content" style="margin: 0; padding: 0; background-color: #f5f5f5;">
+    <div class="pageTitle">
+        <div id="popup-page-title">➖ 기관회선이력</div>
+    </div>
+
+    <div style="margin: 25px;">
+        <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+
+            <div class="flex-row-end custom-padding-10">
+                <p id="inquiry_time" style="margin: 0;">조회시간 : 2023-05-11 09:11:30</p>
+                <div class="custom-button-wrap custom-margin-left-10">
+                    <button type="button" class="custom-btn custom-blue-btn" onclick="searchButton()">
+                        <img src='/images/icon/btn/search.svg' alt='검색' class='btn-icon'>검색</button>
+                    <button type="button" class="custom-btn custom-blue-btn" onclick="toggleFold()">∨</button>
+                </div>
+            </div>
+
+            <div id="foldableContent" class="tbl-bootstrap-wrap custom-border-top-solid">
+                <table class="table-hover-delete">
+                    <tbody>
+                    <tr>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="asset_id" class="custom-tb-title-text">타입</label>
+                        </td>
+                        <td colspan="3" class="custom-tb-content custom-width-28per">
+                            <select id="asset_id" name="asset_id" class="custom-select" style="width: 60% !important;">
+                                <option value="1">전체</option>
+                                <!--
+                                <option value="2">테스트 1</option>
+                                <option value="3">테스트 2</option>
+                                -->
+                            </select>
+                            <select id="asset_id2" name="asset_id2" class="custom-select" style="width:35% !important;">
+                                <option value="1">전체</option>
+                                <!--
+                                <option value="2">테스트 3</option>
+                                <option value="3">테스트 4</option>
+                                -->
+                            </select>
+                        </td>
+                        <td colspan="2" class="custom-tb-content custom-width-19per">
+                            <label class="custom-checkbox">
+                                <input type="checkbox"><span></span>패치구간
+                            </label>
+                        </td>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="asset_id" class="custom-tb-title-text">전산실</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <select id="asset_id" name="asset_id" class="custom-select">
+                                <option value="1">전체</option>
+                                <!--
+                                <option value="2">테스트 5</option>
+                                <option value="3">테스트 6</option>
+                                -->
+                            </select>
+                        </td>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="dedicated_line_category" class="custom-tb-title-text">전용회선</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <select id="dedicated_line_category" name="dedicated_line_category" class="custom-select">
+                                <option value="">전체</option>
+                                <option value="1">SKT</option>
+                                <option value="2">KT</option>
+                                <option value="3">LGU+</option>
+                                <option value="9">기타</option>
+                            </select>
+                        </td>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="dedicated_line_number" class="custom-tb-title-text">회선번호</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="dedicated_line_number" name="dedicated_line_number" class="custom-input" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="install_date" class="custom-tb-title-text">포설일자</label>
+                        </td>
+                        <td colspan="5" class="custom-tb-content custom-width-47per">
+                            <label class="custom-radio">
+                                <input type="radio" name="install-radio-group" value="all" checked><span></span>전체
+                            </label>
+                            <label class="custom-radio">
+                                <input type="radio" name="install-radio-group" value="today"><span></span>금일
+                            </label>
+                            <label class="custom-radio">
+                                <input type="radio" name="install-radio-group" value="this-month"><span></span>금월
+                            </label>
+                            <label class="custom-radio">
+                                <input type="radio" name="install-radio-group" value="last-month"><span></span>전월
+                            </label>
+                            <label class="custom-radio">
+                                <input type="radio" name="install-radio-group" value="custom-date"><span></span>기간선택
+                            </label>
+                            <input type="text" id="install_date" name="multi-datetime" class="custom-input custom-width-150" />
+                        </td>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="approve_date" class="custom-tb-title-text">승인(수정)일자</label>
+                        </td>
+                        <td colspan="5" class="custom-tb-content custom-width-47per">
+                            <label class="custom-radio">
+                                <input type="radio" name="approval-radio-group" value="all" checked><span></span>전체
+                            </label>
+                            <label class="custom-radio">
+                                <input type="radio" name="approval-radio-group" value="today"><span></span>금일
+                            </label>
+                            <label class="custom-radio">
+                                <input type="radio" name="approval-radio-group" value="this-month"><span></span>금월
+                            </label>
+                            <label class="custom-radio">
+                                <input type="radio" name="approval-radio-group" value="last-month"><span></span>전월
+                            </label>
+                            <label class="custom-radio">
+                                <input type="radio" name="approval-radio-group" value="custom-date"><span></span>기간선택
+                            </label>
+                            <input type="text" id="approve_date" name="multi-datetime" class="custom-input custom-width-150" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" class="custom-tb-title custom-width-52per">
+                            <label for="asset_id" class="custom-tb-title-text">START</label>
+                        </td>
+                        <td colspan="6" class="custom-tb-title custom-width-48per">
+                            <label for="asset_id" class="custom-tb-title-text">END</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="start_asset_config" class="custom-tb-title-text">구성(자산)ID</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="start_asset_config" name="start_asset_config" class="custom-input" />
+                        </td>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="start_location" class="custom-tb-title-text">좌표</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="start_location" name="start_location" class="custom-input" />
+                        </td>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="start_eqp_name" class="custom-tb-title-text">업무명</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="start_eqp_name" name="start_eqp_name" class="custom-input" />
+                        </td>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="end_asset_config" class="custom-tb-title-text">구성(자산)ID</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="end_asset_config" name="end_asset_config" class="custom-input" />
+                        </td>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="end_location" class="custom-tb-title-text">좌표</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="end_location" name="end_location" class="custom-input" />
+                        </td>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="end_eqp_name" class="custom-tb-title-text">업무명</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="end_eqp_name" name="end_eqp_name" class="custom-input" />
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="contentCardWrap custom-width-min-1280">
+
+            <div class="flex-row-between custom-padding-10">
+                <p id="table-cnt" class="custom-tui-grid-cnt" style="margin: 0;">전체 개수 : 105개</p>
+                <div class="custom-button-wrap custom-margin-left-10">
+                    <button type="button" class="custom-btn custom-gray-btn" onclick="downloadCableHistoryInfo()">
+                        <img src='/images/icon/btn/download.svg' alt='엑셀' class='btn-icon'>엑셀</button>
+                </div>
+            </div>
+
+            <div class="custom-border-top-solid custom-padding-bottom-5">
+                <div id="grid" class="custom-tui-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+            function downloadCableHistoryInfo() {
+                modalManager.show({
+                    title: "알림",
+                    html: "회선 이력 정보를 다운로드하시겠습니까? <br>(기능 개발중)",
+                    icon: "info",
+                    confirmButtonText: "다운로드",
+                    cancelButtonText: '취소',
+                    showCancelButton: true,
+                    //heightAuto: false,
+                }).then((result) => {
+                    if(result.isConfirmed){
+
+                    }
+                });
+            }
+
+            const tuiColumns = [
+                {
+                    header: 'NO',
+                    name: 'install_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '기관명',
+                    name: 'org_name',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '구분',
+                    name: 'cable_category',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '자산ID',
+                    name: 'start_asset_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '구성ID',
+                    name: 'start_config_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '좌표',
+                    name: 'start_location',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '업무명',
+                    name: 'start_eqp_name',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '포트',
+                    name: 'start_port',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '자산ID',
+                    name: 'end_asset_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '구성ID',
+                    name: 'end_config_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '좌표',
+                    name: 'end_location',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '업무명',
+                    name: 'end_eqp_name',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '포트',
+                    name: 'end_port',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '케이블 타입',
+                    name: 'cable_type',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '케이블 색상',
+                    name: 'cable_color',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '케이블 길이',
+                    name: 'cable_length',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '포설일자',
+                    name: 'install_date',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '승인(수정) 일자',
+                    name: 'upd_dt',
+                    sortable: true,
+                    align: 'center',
+                },
+            ];
+
+            const tuiComplexColumns = [
+                {
+                    header: 'START', // Nested Header의 텍스트
+                    name: 'start', // 그룹 이름 (사용자 정의 고유값)
+                    childNames: ['start_asset_id', 'start_config_id', 'start_location', 'start_eqp_name', 'start_port'],
+                },
+                {
+                    header: 'END', // Nested Header의 텍스트
+                    name: 'end', // 그룹 이름 (사용자 정의 고유값)
+                    childNames: ['end_asset_id', 'end_config_id', 'end_location', 'end_eqp_name', 'end_port'],
+                },
+            ]
+
+            $(function() {
+
+                const $installDate = $("#install_date");
+                const $approveDate = $("#approve_date");
+
+                $installDate.prop({ "disabled": true, "readonly": true });
+                $approveDate.prop({ "disabled": true, "readonly": true });
+
+                // 포설일자 라디오 변경 이벤트
+                $('input[name="install-radio-group"]').on("change", function () {
+                    const selectedValue = $(this).val();
+
+                    if (selectedValue === "custom-date") {
+                        $installDate.prop({ "disabled": false, "readonly": false });
+                    } else {
+                        $installDate.prop({ "disabled": true, "readonly": true });
+                    }
+                });
+
+                // 승인(수정)일자 라디오 변경 이벤트
+                $('input[name="approval-radio-group"]').on("change", function () {
+                    const selectedValue = $(this).val();
+
+                    if (selectedValue === "custom-date") {
+                        $approveDate.prop({ "disabled": false, "readonly": false });
+                    } else {
+                        $approveDate.prop({ "disabled": true, "readonly": true });
+                    }
+                });
+
+
+                ['#start_asset_config', '#start_location', '#start_eqp_name',
+                    '#end_asset_config', '#end_location', '#end_eqp_name',
+                    '#dedicated_line_number'].forEach(function(selector) {
+                    $(selector).keyup(function(e) {
+                        if (e.which == 13) {
+                            searchButton();
+                        }
+                    });
+                });
+
+                gridManager.grid({
+                    url: "/cable/agency/getHistoryList",
+                    columns: tuiColumns,
+                    complexColumns: tuiComplexColumns,
+                    checkbox: true,
+                    gridElementId: "grid",
+                    tableCountId : "table-cnt",
+                    paginationOption: true,
+                })
+
+            });
+
+            // 기관회선관리 정보 검색
+            function searchButton(){
+                const selectedInstallRadioValue = $('input[name="install-radio-group"]:checked').val();
+                const selectedApproveRadioValue = $('input[name="approval-radio-group"]:checked').val();
+
+                let installStartDate = "";
+                let installEndDate = "";
+                let approveStartDate = "";
+                let approveEndDate = "";
+
+                if (selectedInstallRadioValue === "all") {
+                    // 전체는 포설일자... 없는게 원래 있는지는 모르겠지만
+                    // 일단 없는 것들도 포함해서 전부
+                } else if (selectedInstallRadioValue === "today") {
+                    installStartDate = moment().format("YYYY-MM-DD");
+                    installEndDate = moment().format("YYYY-MM-DD");
+                } else if (selectedInstallRadioValue === "this-month") {
+                    installStartDate = moment().startOf("month").format("YYYY-MM-DD");
+                    installEndDate = moment().endOf("month").format("YYYY-MM-DD");
+                } else if (selectedInstallRadioValue === "last-month") {
+                    installStartDate = moment().subtract(1, "month").startOf("month").format("YYYY-MM-DD");
+                    installEndDate = moment().subtract(1, "month").endOf("month").format("YYYY-MM-DD");
+                } else if (selectedInstallRadioValue === "custom-date") {
+                    const $installDate = $("#install_date");
+                    const installDateRange = $installDate.val();
+                    const dates = installDateRange.split(" - ");
+                    installStartDate = dates[0].trim();
+                    installEndDate = dates[1].trim();
+                }
+
+                if (selectedApproveRadioValue === "all") {
+                    // 전체는 승인일자... 없는게 원래 있는지는 모르겠지만
+                    // 일단 없는 것들도 포함해서 전부
+                } else if (selectedApproveRadioValue === "today") {
+                    approveStartDate = moment().format("YYYY-MM-DD");
+                    approveEndDate = moment().format("YYYY-MM-DD");
+                } else if (selectedApproveRadioValue === "this-month") {
+                    approveStartDate = moment().startOf("month").format("YYYY-MM-DD");
+                    approveEndDate = moment().endOf("month").format("YYYY-MM-DD");
+                } else if (selectedApproveRadioValue === "last-month") {
+                    approveStartDate = moment().subtract(1, "month").startOf("month").format("YYYY-MM-DD");
+                    approveEndDate = moment().subtract(1, "month").endOf("month").format("YYYY-MM-DD");
+                } else if (selectedApproveRadioValue === "custom-date") {
+                    const approveDateRange = $("#approve_date").val();
+                    const approveDates = approveDateRange.split(" - ");
+                    approveStartDate = approveDates[0].trim();
+                    approveEndDate = approveDates[1].trim();
+                }
+
+
+                let data = {
+                    install_start_date: installStartDate,
+                    install_end_date: installEndDate,
+                    approve_start_date: approveStartDate,
+                    approve_end_date: approveEndDate,
+                    start_asset_config: $("#start_asset_config").val(),
+                    start_location: $("#start_location").val(),
+                    start_eqp_name: $("#start_eqp_name").val(),
+                    end_asset_config: $("#end_asset_config").val(),
+                    end_location: $("#end_location").val(),
+                    end_eqp_name: $("#end_eqp_name").val(),
+                    dedicated_line_category: $("#dedicated_line_category").val(),
+                    dedicated_line_number: $("#dedicated_line_number").val(),
+                };
+
+                gridManager.updateGrid("grid", data);
+            }
+
+        </script>
+    </th:block>
+</main>
+</html>

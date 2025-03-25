@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cms.gongju.cable.mapper.PrivateMapper">
+
+    <!-- 전용회선관리 목록 조회 -->
+    <select id="getPrivateLineList" parameterType="map" resultType="map">
+        /* getPrivateLineList */
+        select
+            LINE_ID line_id,
+            LINE_USER_ORG line_user_org,
+            LINE_OPERATOR line_operator,
+            LINE_PURPOSE line_purpose,
+            LINE_NUMBER line_number,
+            UPPER_ORG_NAME upper_org_name,
+            LOWER_ORG_NAME lower_org_name,
+            TX_EQUIP1_LOCATION tx_equip1_location,
+            TX_EQUIP1_NAME tx_equip1_name,
+            TX_EQUIP1_PORT tx_equip1_port,
+            TM_EQUIP_LOCATION tm_equip_location,
+            TM_EQUIP_NAME tm_equip_name,
+            TM_EQUIP_PORT tm_equip_port,
+            OPEN_DATE open_date
+        from
+            tb_dedicated_line
+        where
+            IS_DELETED = 'N'
+        ORDER BY line_id DESC
+        LIMIT #{start}, #{page}
+    </select>
+
+    <!-- 전용회선관리 목록 개수 조회 -->
+    <select id="getPrivateLineListCount" parameterType="map" resultType="int">
+        /* getPrivateLineListCount */
+        select
+            count(LINE_ID)
+        from
+            tb_dedicated_line
+        where
+            IS_DELETED = 'N'
+    </select>
+
+    <!-- 전용회선관리 > 케이블 등록/수정 팝업 리스트 조회 -->
+    <select id="getPrivateLineDetailList" parameterType="map" resultType="map">
+        /* getPrivateLineDetailList */
+        select
+            LINE_ID AS line_id,
+            LINE_USER_ORG AS line_user_org,
+            LINE_OPERATOR AS line_operator,
+            LINE_PURPOSE AS line_purpose,
+            LINE_NUMBER AS line_number,
+            LINE_SPEED AS line_speed,
+            LINE_CATEGORY AS line_category,
+            SUBSCRIBER_NAME AS subscriber_name,
+            UPPER_ORG_NAME AS upper_org_name,
+            UPPER_REGION AS upper_region,
+            UPPER_DEPT AS upper_dept,
+            UPPER_MANAGER AS upper_manager,
+            UPPER_CONTACT AS upper_contact,
+            LOWER_ORG_NAME AS lower_org_name,
+            LOWER_REGION AS lower_region,
+            LOWER_DEPT AS lower_dept,
+            LOWER_MANAGER AS lower_manager,
+            LOWER_CONTACT AS lower_contact,
+            TX_EQUIP1_LOCATION AS tx_equip1_location,
+            TX_EQUIP1_NAME AS tx_equip1_name,
+            TX_EQUIP1_PORT AS tx_equip1_port,
+            TX_EQUIP2_LOCATION AS tx_equip2_location,
+            TX_EQUIP2_NAME AS tx_equip2_name,
+            TX_EQUIP2_PORT AS tx_equip2_port,
+            TM_EQUIP_LOCATION AS tm_equip_location,
+            TM_EQUIP_NAME AS tm_equip_name,
+            TM_EQUIP_PORT AS tm_equip_port,
+            TM_EQUIP_CONFIGID AS tm_equip_configid,
+            LINE_MANAGER AS line_manager,
+            LINE_MANAGER_CONTACT AS line_manager_contact,
+            FAULT_REPORT_CONTACT AS fault_report_contact,
+            OPEN_DATE AS open_date,
+            REMARKS AS remarks
+        from
+            tb_dedicated_line
+        where
+            LINE_ID = #{line_id}
+    </select>
+
+    <!-- 전용회선관리 > 케이블 정보 등록 -->
+    <insert id="insertCableInfo" parameterType="map">
+        insert into tb_dedicated_line (
+            LINE_USER_ORG,
+            LINE_OPERATOR,
+            LINE_PURPOSE,
+            LINE_NUMBER,
+            LINE_SPEED,
+            LINE_CATEGORY,
+            SUBSCRIBER_NAME,
+            UPPER_ORG_NAME,
+            UPPER_REGION,
+            UPPER_DEPT,
+            UPPER_MANAGER,
+            UPPER_CONTACT,
+            LOWER_ORG_NAME,
+            LOWER_REGION,
+            LOWER_DEPT,
+            LOWER_MANAGER,
+            LOWER_CONTACT,
+            TX_EQUIP1_LOCATION,
+            TX_EQUIP1_NAME,
+            TX_EQUIP1_PORT,
+            TX_EQUIP2_LOCATION,
+            TX_EQUIP2_NAME,
+            TX_EQUIP2_PORT,
+            TM_EQUIP_LOCATION,
+            TM_EQUIP_NAME,
+            TM_EQUIP_PORT,
+            TM_EQUIP_CONFIGID,
+            LINE_MANAGER,
+            LINE_MANAGER_CONTACT,
+            FAULT_REPORT_CONTACT,
+            OPEN_DATE,
+            REMARKS,
+            IS_DELETED,
+            REG_ID,
+            REG_DT
+        )
+        values(
+            #{line_user_org},
+            #{line_operator},
+            #{line_purpose},
+            #{line_number},
+            #{line_speed},
+            #{line_category},
+            #{subscriber_name},
+            #{upper_org_name},
+            #{upper_region},
+            #{upper_dept},
+            #{upper_manager},
+            #{upper_contact},
+            #{lower_org_name},
+            #{lower_region},
+            #{lower_dept},
+            #{lower_manager},
+            #{lower_contact},
+            #{tx_equip1_location},
+            #{tx_equip1_name},
+            #{tx_equip1_port},
+            #{tx_equip2_location},
+            #{tx_equip2_name},
+            #{tx_equip2_port},
+            #{tm_equip_location},
+            #{tm_equip_name},
+            #{tm_equip_port},
+            #{tm_equip_configid},
+            #{line_manager},
+            #{line_manager_contact},
+            #{fault_report_contact},
+            #{open_date},
+            #{remarks},
+            'N',
+            #{reg_id},
+            now()
+        )
+    </insert>
+
+    <!-- 전용회선관리 > 케이블 정보 수정 -->
+    <update id="updateCableInfo" parameterType="map">
+        update tb_dedicated_line
+        set
+            LINE_USER_ORG        = #{line_user_org},
+            LINE_OPERATOR        = #{line_operator},
+            LINE_PURPOSE         = #{line_purpose},
+            LINE_NUMBER          = #{line_number},
+            LINE_SPEED           = #{line_speed},
+            LINE_CATEGORY        = #{line_category},
+            SUBSCRIBER_NAME      = #{subscriber_name},
+            UPPER_ORG_NAME       = #{upper_org_name},
+            UPPER_REGION         = #{upper_region},
+            UPPER_DEPT           = #{upper_dept},
+            UPPER_MANAGER        = #{upper_manager},
+            UPPER_CONTACT        = #{upper_contact},
+            LOWER_ORG_NAME       = #{lower_org_name},
+            LOWER_REGION         = #{lower_region},
+            LOWER_DEPT           = #{lower_dept},
+            LOWER_MANAGER        = #{lower_manager},
+            LOWER_CONTACT        = #{lower_contact},
+            TX_EQUIP1_LOCATION   = #{tx_equip1_location},
+            TX_EQUIP1_NAME       = #{tx_equip1_name},
+            TX_EQUIP1_PORT       = #{tx_equip1_port},
+            TX_EQUIP2_LOCATION   = #{tx_equip2_location},
+            TX_EQUIP2_NAME       = #{tx_equip2_name},
+            TX_EQUIP2_PORT       = #{tx_equip2_port},
+            TM_EQUIP_LOCATION    = #{tm_equip_location},
+            TM_EQUIP_NAME        = #{tm_equip_name},
+            TM_EQUIP_PORT        = #{tm_equip_port},
+            TM_EQUIP_CONFIGID    = #{tm_equip_configid},
+            LINE_MANAGER         = #{line_manager},
+            LINE_MANAGER_CONTACT = #{line_manager_contact},
+            FAULT_REPORT_CONTACT = #{fault_report_contact},
+            OPEN_DATE            = #{open_date},
+            REMARKS              = #{remarks},
+            UPD_ID               = #{reg_id},
+            UPD_DT               = now()
+        where
+            line_id = #{line_id}
+    </update>
+
+    <update id="deleteCableInfo" parameterType="map">
+        update tb_dedicated_line
+        set
+            IS_DELETED = 'Y',
+            UPD_ID = #{reg_id},
+            UPD_DT = now()
+        where line_id = #{line_id}
+    </update>
+
+    <!-- 엑셀 다운로드용 전용회선 목록 조회 -->
+    <select id="getExcelCableInfoTotalList" resultType="map">
+        /* getExcelCableInfoTotalList */
+        select
+            LINE_ID `No`,
+            LINE_USER_ORG `회선사용기관명`,
+            LINE_OPERATOR `회선사업자`,
+            LINE_PURPOSE `회선용도`,
+            LINE_NUMBER `회선번호`,
+            UPPER_ORG_NAME `상위(기관명)`,
+            LOWER_ORG_NAME `하위(기관명)`,
+            TX_EQUIP1_LOCATION `전송장비#1(좌표)`,
+            TX_EQUIP1_NAME `전송장비#1(장비명)`,
+            TX_EQUIP1_PORT `전송장비#1(포트)`,
+            TM_EQUIP_LOCATION `종단장비(좌표)`,
+            TM_EQUIP_NAME `종단장비(장비명)`,
+            TM_EQUIP_PORT `종단장비(포트)`,
+            OPEN_DATE `개통일`
+        from
+            tb_dedicated_line
+        where
+            IS_DELETED = 'N'
+        ORDER BY line_id DESC
+    </select>
+
+</mapper>

@@ -1,0 +1,15 @@
+.request-list-container {
+    margin: 20px;
+}
+.search-area {
+    margin-bottom: 10px;
+}
+.list-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.list-table th, .list-table td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    text-align: center;
+}

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cms.gongju.cablerequest.mapper.WorkerMapper">
+
+    <!-- 목록조회 -->
+    <select id="selectWorkerList" parameterType="map" resultType="map">
+        SELECT
+        WORKER_ID,
+        COMPANY_NAME,
+        JOB_TITLE,
+        WORKER_NAME,
+        CONTACT
+        FROM tb_worker
+        WHERE 1=1
+        <if test="companyName != null and companyName != ''">
+            AND COMPANY_NAME LIKE CONCAT('%',#{companyName},'%')
+        </if>
+        <if test="workerName != null and workerName != ''">
+            AND WORKER_NAME LIKE CONCAT('%',#{workerName},'%')
+        </if>
+        <!-- etc... -->
+        ORDER BY WORKER_ID DESC
+    </select>
+
+    <select id="selectAll" resultType="map">
+        SELECT
+            WORKER_ID,
+            COMPANY_NAME,
+            JOB_TITLE,
+            WORKER_NAME,
+            CONTACT
+        FROM tb_worker
+        ORDER BY WORKER_ID DESC
+    </select>
+
+    <select id="search" parameterType="map" resultType="map">
+        SELECT
+        WORKER_ID,
+        COMPANY_NAME,
+        JOB_TITLE,
+        WORKER_NAME,
+        CONTACT
+        FROM tb_worker
+        WHERE 1=1
+        <if test="companyName != null and companyName != ''">
+            AND COMPANY_NAME LIKE CONCAT('%', #{companyName}, '%')
+        </if>
+        <if test="jobTitle != null and jobTitle != ''">
+            AND JOB_TITLE LIKE CONCAT('%', #{jobTitle}, '%')
+        </if>
+        <if test="workerName != null and workerName != ''">
+            AND WORKER_NAME LIKE CONCAT('%', #{workerName}, '%')
+        </if>
+        <if test="contact != null and contact != ''">
+            AND CONTACT LIKE CONCAT('%', #{contact}, '%')
+        </if>
+        ORDER BY WORKER_ID DESC
+    </select>
+
+
+    <!-- Insert -->
+    <insert id="insertWorker" parameterType="map">
+        INSERT INTO tb_worker
+        (
+            COMPANY_NAME,
+            JOB_TITLE,
+            WORKER_NAME,
+            CONTACT,
+            REG_ID,
+            REG_DT
+        )
+        VALUES
+            (
+                #{companyName},
+                #{jobTitle},
+                #{workerName},
+                #{contact},
+                'adminUser',
+                NOW()
+            )
+    </insert>
+
+    <!-- ========== [신규: selectWorkersByRequestId] ========== -->
+    <select id="selectWorkersByRequestId" parameterType="long" resultType="map">
+        SELECT
+            w.WORKER_ID       AS workerId,
+            w.COMPANY_NAME    AS companyName,
+            w.JOB_TITLE       AS jobTitle,
+            w.WORKER_NAME     AS workerName,
+            w.CONTACT         AS contact
+        FROM tb_request_worker rw
+                 JOIN tb_worker w ON rw.WORKER_ID = w.WORKER_ID
+        WHERE rw.REQUEST_ID = #{requestId}
+    </select>
+
+    <!-- [신규] 다중 workerId 삭제 -->
+    <delete id="deleteWorkers" parameterType="java.util.List">
+        DELETE FROM tb_worker
+        WHERE WORKER_ID IN
+        <foreach collection="workerIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

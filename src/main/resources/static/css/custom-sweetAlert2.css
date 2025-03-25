@@ -1,0 +1,22 @@
+/* sweetAlert2 커스텀 너비 */
+.custom-width {
+    width: max-content;
+}
+
+/* 모든 SweetAlert2 버튼에 대해 크기 일괄 설정 */
+.swal2-actions button {
+    font-size: 13px;
+    padding: 0;
+    width: 80px;
+    height: 35px;
+}
+
+/* 등장 애니메이션 제거 */
+.swal2-show {
+    animation: none !important;
+}
+
+/* 배경 블러 효과 */
+.swal2-container {
+    backdrop-filter: blur(10px);
+}

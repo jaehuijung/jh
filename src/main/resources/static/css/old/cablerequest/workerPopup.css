@@ -1,0 +1,15 @@
+.worker-popup-container {
+    margin: 20px;
+}
+.search-area {
+    margin-bottom: 10px;
+}
+.worker-popup-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.worker-popup-container th, .worker-popup-container td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    text-align: center;
+}

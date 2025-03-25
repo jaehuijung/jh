@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+
+</head>
+<main layout:fragment="content">
+
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+
+        <div class="flex-row-end custom-padding-10">
+            <p id="inquiry_time" style="margin: 0;">조회시간 : 2023-05-11 09:11:30</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="searchButton()">검색</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="toggleFold()">∨</button>
+            </div>
+        </div>
+
+        <div id="foldableContent" class="tbl-bootstrap-wrap custom-border-top-solid">
+            <table class="table-hover-delete">
+                <tbody>
+                <tr>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">기관명</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-28per">
+                        <select id="asset_id" name="asset_id" class="custom-select">
+                            <option value="1">전체</option>
+                            <option value="2">테스트 1</option>
+                            <option value="3">테스트 2</option>
+                        </select>
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">구분</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-28per">
+                        <select id="asset_id" name="asset_id" class="custom-select">
+                            <option value="1">전체</option>
+                            <option value="2">테스트 5</option>
+                            <option value="3">테스트 6</option>
+                        </select>
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">승인대기</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-28per">
+                        <select id="asset_id" name="asset_id" class="custom-select">
+                            <option value="1">전체</option>
+                            <option value="2">테스트 5</option>
+                            <option value="3">테스트 6</option>
+                        </select>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <div class="contentCardWrap custom-width-min-1280">
+        <div class="flex-row-between custom-padding-10">
+            <p id="table-cnt" style="margin: 0;">전체 개수 : 9개</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-gray-btn" onclick="searchButton()">엑셀</button>
+            </div>
+        </div>
+
+        <div class="custom-border-top-solid">
+            <div id="handsontable-container"></div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script th:src="@{/js/application/construction/view.js}"></script>
+    </th:block>
+</main>
+
+</html>

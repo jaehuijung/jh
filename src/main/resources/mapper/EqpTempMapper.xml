@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cms.gongju.cablerequest.mapper.EqpTempMapper">
+    <select id="searchEqpTemp" parameterType="map" resultType="map">
+        SELECT
+        ASSET_ID,
+        CONFIG_ID,
+        EQP_NAME,
+        HOST_NAME,
+        MODEL_NAME
+        FROM tb_eqp_temp
+        WHERE 1=1
+        <if test="assetId != null and assetId != ''">
+            AND ASSET_ID LIKE CONCAT('%', #{assetId}, '%')
+        </if>
+        <if test="configId != null and configId != ''">
+            AND CONFIG_ID LIKE CONCAT('%', #{configId}, '%')
+        </if>
+        <if test="eqpName != null and eqpName != ''">
+            AND EQP_NAME LIKE CONCAT('%', #{eqpName}, '%')
+        </if>
+        ORDER BY CONFIG_ID ASC
+    </select>
+</mapper>

@@ -1,0 +1,423 @@
+<!--
+File Name : privateLineInfoView.html
+Description: 선번장관리 > 전용회선관리 > 케이블 등록/수정 팝업
+Author: 구명회
+Created On: 2025-02-07
+Revision History:
+  - 2025-02-07: 팝업 페이지 퍼블리싱 완료
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/popuplayout}">
+<head>
+    <style>
+
+    </style>
+</head>
+<main layout:fragment="content" style="margin: 0; padding: 0; background-color: #f5f5f5;">
+    <div style="margin: 25px; background-color: #fff;">
+        <div class="custom-width-900">
+            <div class="flex-row-between custom-padding-10">
+                <p style="margin: 0;">정보수정</p>
+                <div class="custom-button-wrap custom-margin-left-10">
+                    <button type="button" class="custom-btn custom-blue-btn" onclick="saveCableInfo()">
+                        <img src='/images/icon/etc/register.svg' alt='등록' class='btn-icon'>등록</button>
+                </div>
+            </div>
+            <div class="tbl-bootstrap-wrap custom-border-top-solid">
+                <input type="hidden" id="line_id" name="line_id"
+                       th:value="${#maps.containsKey(cableInfo, 'line_id') ? cableInfo.line_id : ''}"
+                />
+                <input type="hidden" id="reg_id" name="reg_id"
+                       th:value="${accountData.userId}"
+                />
+
+                <table class="table-hover-delete">
+                    <tbody>
+                        <tr>
+                            <td colspan="2" class="custom-tb-title custom-width-4per">
+                                <label for="line_user_org" class="custom-tb-title-text">회선사용기관명</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="line_user_org" name="line_user_org" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'line_user_org') ? cableInfo.line_user_org : ''}" />
+                            </td>
+                            <td colspan="2" class="custom-tb-title custom-width-4per">
+                                <label for="subscriber_name" class="custom-tb-title-text">청약(장애소관)</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="subscriber_name" name="subscriber_name" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'subscriber_name') ? cableInfo.subscriber_name : ''}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="custom-tb-title custom-width-4per">
+                                <label for="line_operator" class="custom-tb-title-text">회선사업자</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <!--
+                                <select id="asset_id" name="asset_id" class="custom-select" style="width: 52% !important;">
+                                    <option value="1">전체</option>
+                                    <option value="2">테스트 1</option>
+                                    <option value="3">테스트 2</option>
+                                </select>
+                                -->
+                                <input id="line_operator" name="line_operator" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'line_operator') ? cableInfo.line_operator : ''}" />
+                            </td>
+                            <td colspan="2" class="custom-tb-title custom-width-4per">
+                                <label for="line_number" class="custom-tb-title-text">회선번호</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="line_number" name="line_number" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'line_number') ? cableInfo.line_number : ''}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="custom-tb-title custom-width-4per">
+                                <label for="line_purpose" class="custom-tb-title-text">회선용도</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="line_purpose" name="line_purpose" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'line_purpose') ? cableInfo.line_purpose : ''}" />
+                            </td>
+                            <td colspan="2" class="custom-tb-title custom-width-4per">
+                                <label for="line_speed" class="custom-tb-title-text">회선속도</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="line_speed" name="line_speed" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'line_speed') ? cableInfo.line_speed : ''}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="custom-tb-title custom-width-4per">
+                                <label for="line_category" class="custom-tb-title-text">회선종류</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="line_category" name="line_category" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'line_category') ? cableInfo.line_category : ''}" />
+                            </td>
+                            <td colspan="2" class="custom-tb-content custom-width-4per">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td rowspan="5" class="custom-tb-title custom-width-2per">
+                                <label class="custom-tb-title-text">상위</label>
+                            </td>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="upper_org_name" class="custom-tb-title-text">기관명</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="upper_org_name" name="upper_org_name" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'upper_org_name') ? cableInfo.upper_org_name : ''}" />
+                            </td>
+                            <td rowspan="5" class="custom-tb-title custom-width-2per">
+                                <label class="custom-tb-title-text">하위</label>
+                            </td>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="lower_org_name" class="custom-tb-title-text">기관명</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="lower_org_name" name="lower_org_name" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'lower_org_name') ? cableInfo.lower_org_name : ''}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="upper_region" class="custom-tb-title-text">지역</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="upper_region" name="upper_region" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'upper_region') ? cableInfo.upper_region : ''}" />
+                            </td>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="lower_region" class="custom-tb-title-text">지역</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="lower_region" name="lower_region" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'lower_region') ? cableInfo.lower_region : ''}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="upper_dept" class="custom-tb-title-text">담당기관</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="upper_dept" name="upper_dept" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'upper_dept') ? cableInfo.upper_dept : ''}" />
+                            </td>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="lower_dept" class="custom-tb-title-text">담당기관</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="lower_dept" name="lower_dept" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'lower_dept') ? cableInfo.lower_dept : ''}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="upper_manager" class="custom-tb-title-text">담당자</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="upper_manager" name="upper_manager" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'upper_manager') ? cableInfo.upper_manager : ''}" />
+                            </td>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="lower_manager" class="custom-tb-title-text">담당자</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="lower_manager" name="lower_manager" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'lower_manager') ? cableInfo.lower_manager : ''}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="upper_contact" class="custom-tb-title-text">연락처</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="upper_contact" name="upper_contact" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'upper_contact') ? cableInfo.upper_contact : ''}" />
+                            </td>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="lower_contact" class="custom-tb-title-text">연락처</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="lower_contact" name="lower_contact" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'lower_contact') ? cableInfo.lower_contact : ''}" />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td rowspan="3" class="custom-tb-title custom-width-2per">
+                                <label class="custom-tb-title-text">전송장비#1</label>
+                            </td>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="tx_equip1_location" class="custom-tb-title-text">좌표</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="tx_equip1_location" name="tx_equip1_location" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'tx_equip1_location') ? cableInfo.tx_equip1_location : ''}" />
+                            </td>
+                            <td rowspan="3" class="custom-tb-title custom-width-2per">
+                                <label class="custom-tb-title-text">전송장비#2</label>
+                            </td>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="tx_equip2_location" class="custom-tb-title-text">좌표</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="tx_equip2_location" name="tx_equip2_location" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'tx_equip2_location') ? cableInfo.tx_equip2_location : ''}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="tx_equip1_name" class="custom-tb-title-text">장비명</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="tx_equip1_name" name="tx_equip1_name" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'tx_equip1_name') ? cableInfo.tx_equip1_name : ''}" />
+                            </td>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="tx_equip2_name" class="custom-tb-title-text">장비명</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="tx_equip2_name" name="tx_equip2_name" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'tx_equip2_name') ? cableInfo.tx_equip2_name : ''}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="tx_equip1_port" class="custom-tb-title-text">포트</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="tx_equip1_port" name="tx_equip1_port" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'tx_equip1_port') ? cableInfo.tx_equip1_port : ''}" />
+                            </td>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="tx_equip2_port" class="custom-tb-title-text">포트</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="tx_equip2_port" name="tx_equip2_port" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'tx_equip2_port') ? cableInfo.tx_equip2_port : ''}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td rowspan="4" class="custom-tb-title custom-width-2per">
+                                <label class="custom-tb-title-text">종단장비</label>
+                            </td>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="tm_equip_configid" class="custom-tb-title-text">구성ID</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="tm_equip_configid" name="tm_equip_configid" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'tm_equip_configid') ? cableInfo.tm_equip_configid : ''}" />
+                            </td>
+                            <td colspan="2" class="custom-tb-title custom-width-4per">
+                                <label for="line_manager" class="custom-tb-title-text">회선사업담당자</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="line_manager" name="line_manager" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'line_manager') ? cableInfo.line_manager : ''}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="tm_equip_location" class="custom-tb-title-text">좌표</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="tm_equip_location" name="tm_equip_location" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'tm_equip_location') ? cableInfo.tm_equip_location : ''}" />
+                            </td>
+                            <td colspan="2" class="custom-tb-title custom-width-4per">
+                                <label for="line_manager_contact" class="custom-tb-title-text">연락처</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="line_manager_contact" name="line_manager_contact" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'line_manager_contact') ? cableInfo.line_manager_contact : ''}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="tm_equip_name" class="custom-tb-title-text">장비명</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="tm_equip_name" name="tm_equip_name" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'tm_equip_name') ? cableInfo.tm_equip_name : ''}" />
+                            </td>
+                            <td colspan="2" class="custom-tb-title custom-width-4per">
+                                <label for="fault_report_contact" class="custom-tb-title-text">장애접수처</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="fault_report_contact" name="fault_report_contact" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'fault_report_contact') ? cableInfo.fault_report_contact : ''}" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="custom-tb-title custom-width-2per">
+                                <label for="tm_equip_port" class="custom-tb-title-text">포트</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="tm_equip_port" name="tm_equip_port" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'tm_equip_port') ? cableInfo.tm_equip_port : ''}"/>
+                            </td>
+                            <td colspan="2" class="custom-tb-content custom-width-11per">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="custom-tb-title custom-width-4per">
+                                <label for="open_date" class="custom-tb-title-text">개통일</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="open_date" type="text" name="single-datetime" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'open_date') ? cableInfo.open_date : ''}"/>
+                            </td>
+                            <td colspan="2" class="custom-tb-title custom-width-4per">
+                                <label for="remarks" class="custom-tb-title-text">비고</label>
+                            </td>
+                            <td class="custom-tb-content custom-width-11per">
+                                <input id="remarks" name="remarks" class="custom-input"
+                                       th:value="${#maps.containsKey(cableInfo, 'remarks') ? cableInfo.remarks : ''}"/>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+
+            $(function() {
+
+            });
+
+            function saveCableInfo() {
+                modalManager.show({
+                    title: "알림",
+                    html: "저장하시겠습니까?",
+                    icon: "info",
+                    confirmButtonText: "저장",
+                    cancelButtonText: '취소',
+                    showCancelButton: true,
+                }).then((result) => {
+                    if(result.isConfirmed){
+                        let line_id              = $('#line_id').val();
+                        let line_user_org        = $("#line_user_org").val();
+                        let line_operator        = $("#line_operator").val();
+                        let line_purpose         = $("#line_purpose").val();
+                        let line_number          = $("#line_number").val();
+                        let line_speed           = $("#line_speed").val();
+                        let line_category        = $("#line_category").val();
+                        let subscriber_name      = $("#subscriber_name").val();
+                        let upper_org_name       = $("#upper_org_name").val();
+                        let upper_region         = $("#upper_region").val();
+                        let upper_dept           = $("#upper_dept").val();
+                        let upper_manager        = $("#upper_manager").val();
+                        let upper_contact        = $("#upper_contact").val();
+                        let lower_org_name       = $("#lower_org_name").val();
+                        let lower_region         = $("#lower_region").val();
+                        let lower_dept           = $("#lower_dept").val();
+                        let lower_manager        = $("#lower_manager").val();
+                        let lower_contact        = $("#lower_contact").val();
+                        let tx_equip1_location   = $("#tx_equip1_location").val();
+                        let tx_equip1_name       = $("#tx_equip1_name").val();
+                        let tx_equip1_port       = $("#tx_equip1_port").val();
+                        let tx_equip2_location   = $("#tx_equip2_location").val();
+                        let tx_equip2_name       = $("#tx_equip2_name").val();
+                        let tx_equip2_port       = $("#tx_equip2_port").val();
+                        let tm_equip_location    = $("#tm_equip_location").val();
+                        let tm_equip_name        = $("#tm_equip_name").val();
+                        let tm_equip_port        = $("#tm_equip_port").val();
+                        let tm_equip_configid    = $("#tm_equip_configid").val();
+                        let line_manager         = $("#line_manager").val();
+                        let line_manager_contact = $("#line_manager_contact").val();
+                        let fault_report_contact = $("#fault_report_contact").val();
+                        let open_date            = $("#open_date").val();
+                        let remarks              = $("#remarks").val();
+                        let reg_id                = $('#reg_id').val();
+
+                        $.ajax({
+                            url: '/cable/private/save',
+                            method: 'post',
+                            contentType: 'application/json',
+                            data : JSON.stringify({
+                                line_id ,line_user_org ,line_operator ,line_purpose ,line_number ,line_speed ,line_category ,
+                                subscriber_name ,upper_org_name ,upper_region ,upper_dept ,upper_manager ,upper_contact ,
+                                lower_org_name ,lower_region ,lower_dept ,lower_manager ,lower_contact ,
+                                tx_equip1_location ,tx_equip1_name ,tx_equip1_port ,tx_equip2_location ,tx_equip2_name ,tx_equip2_port ,
+                                tm_equip_location ,tm_equip_name ,tm_equip_port ,tm_equip_configid ,
+                                line_manager ,line_manager_contact ,fault_report_contact ,open_date ,remarks, reg_id
+                            }),
+                            dataType : 'JSON',
+                            success: function (res) {
+                                if (!res.errorCode){
+                                    alert('데이터를 저장하는 중 오류가 발생했습니다.');
+                                    return false;
+                                }
+
+                                modalManager.show({
+                                    title: "알림",
+                                    html: "저장되었습니다!",
+                                    icon: "success",
+                                    confirmButtonText: "확인",
+                                }).then((result) => {
+                                    window.close();
+                                });
+                            },
+                            error: function () {
+                                alert('데이터를 저장하는 중 오류가 발생했습니다.');
+                            }
+                        });
+
+                    }
+                });
+            }
+
+        </script>
+    </th:block>
+</main>
+</html>

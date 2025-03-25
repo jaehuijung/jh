@@ -1,0 +1,22 @@
+.request-form-container {
+    margin: 20px;
+}
+.top-area, .date-area {
+    margin-bottom: 15px;
+}
+.worker-area, .detail-area {
+    margin: 10px 0;
+}
+.worker-area table, .detail-area table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.worker-area th, .detail-area th,
+.worker-area td, .detail-area td {
+    border: 1px solid #ddd;
+    padding: 6px;
+    text-align: center;
+}
+.btn-area {
+    margin-top: 10px;
+}

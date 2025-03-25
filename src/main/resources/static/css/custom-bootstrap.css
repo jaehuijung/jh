@@ -1,0 +1,191 @@
+
+/* 공통 */
+
+/* 부트스트랩 테이블 기본 */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+/* 부트스트랩 테이블의 헤더와 본문의 모든 셀 스타일 설정 */
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+/* 부트스트랩 테이블 헤더 셀 설정 */
+th {
+    background-color: #f2f2f2;
+    text-align: center;
+    font-weight: 500 !important;
+    color: #000;
+    text-decoration: none !important;
+    cursor: default !important;
+}
+
+/* 부트스트랩 테이블 좌측 끝 border 제거 */
+th:first-child,
+td:first-child {
+    border-left: none;
+}
+
+/* 부트스트랩 테이블 우측 끝 border 제거 */
+th:last-child,
+td:last-child {
+    border-right: none;
+}
+
+/* 부트스트랩 테이블 행 hover 효과 */
+tr:hover {
+    background-color: #ddd;
+}
+
+
+/* 부트스트랩 테이블에 마우스 올렸을 때 hover 되지 않도록 해주는 클래스 */
+.table-hover-delete tr:hover {
+    background-color: transparent;
+}
+
+
+/* 테이블이 페이지 밖으로 튀어나가지 않도록 설정 */
+.tbl-bootstrap-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 테이블 셀이 너무 작아지지 않도록 설정 */
+.table-hover-delete td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 반응형 브레이크포인트 추가 
+@media (max-width: 768px) {
+    .tbl-bootstrap-wrap {
+        width: 100%;
+    }
+
+    .table-hover-delete td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .table-hover-delete tr {
+        display: block;
+        margin-bottom: 10px;
+    }
+}
+*/
+
+
+/* 부트스트랩 설정된 width랑 상관없이 줄바꿈되지 않도록 해주는 클래스 */
+.nowrap {
+    white-space: nowrap;
+}
+
+/* 부트스트랩 밑줄 클래스 */
+.underline {
+    text-decoration: underline;
+    transition: color 0.3s, filter 0.3s; font-weight 0.3s /* 부드러운 애니메이션 효과 추가 */
+}
+
+.underline:hover { /* 마우스 올림 */
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.underline:active { /* 마우스 클릭 */
+    color: red;
+}
+
+/* 부트스트랩 선택된 row에 색을 입혀주는 클래스 */
+.selected-row {
+    background-color: #FAE9A4 !important;
+}
+
+/* 부트스트랩 테이블 건 수 클래스 */
+.totalCnt {
+    font-size: 14px;
+    margin: 0px 0px 10px 0px;
+    padding: 3px 8px;
+}
+
+/* 부트스트랩 체크박스 디자인 */
+.bs-checkbox input[type="checkbox"] { /* 기본 브라우저 스타일 제거 */
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #DADADA;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+}
+
+.bs-checkbox input[type="checkbox"]:checked { /* 체크된 상태 */
+    background-color: #014188;
+    border: 2px solid #014188;
+}
+
+.bs-checkbox input[type="checkbox"]:checked::after { /* 체크박스 내부에 v 표시 */
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* 페이지네이션 스타일 재정의 */
+.custom-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.custom-pagination .page-num {
+    color: #007bff; /* 부트스트랩 기본 파랑색 */
+    text-decoration: none;
+    padding: 8px 12px;
+    margin: 0 4px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    display: block;
+    transition: background-color 0.15s ease;
+}
+
+.custom-pagination .page-num:hover {
+    background-color: #e9ecef; /* 부트스트랩 기본 회색 배경 */
+}
+
+.custom-pagination .page-num.active {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+/* 테이블 타이틀 */
+.custom-tb-title {
+    background-color: #F6F9FE;
+    border-right: 0;
+    text-align: center;
+    font-size: 13px;
+    padding: 0;
+}
+
+.custom-tb-title-text {
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+/* 테이블 타이틀 내용 */
+.custom-tb-content {
+    padding-left: 10px;
+    text-align: left;
+}
+

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cms.gongju.patch.mapper.PatchManageMapper">
+
+    <!-- 패치 연결 목록 -->
+    <select id="selectPatchList" parameterType="map" resultType="java.util.HashMap">
+        <![CDATA[
+  SELECT
+      -- Connection 기본 정보
+     -- c.CONNECTION_ID,
+     -- c.MAIN_PATCH_ID,
+     -- c.MAIN_PORT_ID,
+     -- c.SUB_PATCH_ID,
+     -- c.SUB_PORT_ID,
+      -- MAIN 패치장비 + 포트
+     -- d1.PATCH_NAME       AS main_patch_name,
+  --    d1.PATCH_TYPE       AS main_patch_type,
+   --   d1.PATCH_CATEGORY   AS main_patch_category,
+    --  p1.PORT_NAME        AS main_port_name,
+      -- SUB 패치장비 + 포트
+    --  d2.PATCH_NAME       AS sub_patch_name,
+     -- d2.PATCH_TYPE       AS sub_patch_type,
+    --  d2.PATCH_CATEGORY   AS sub_patch_category,
+    --  p2.PORT_NAME        AS sub_port_name,
+      ROW_NUMBER() OVER (ORDER BY c.CONNECTION_ID) AS `NO`,
+       ci.INSTALL_ID AS install_id,
+      c.CONNECTION_ID AS connection_id,
+      eqp1.location  AS start_location,    -- START 좌표
+      eqp1.eqp_name       AS start_eqp_name,  -- *** START 업무명
+      ci.START_PORT       AS start_port, -- *** START 포트번호(cable_install 테이블)
+        CONCAT(d1.PATCH_NAME, '_', p1.PORT_NAME) AS main_patch_port_concat,  -- *** "MAIN 패치네임" + "_" + "MAIN 패치포트"
+        CONCAT(d2.PATCH_NAME, '_', p2.PORT_NAME) AS sub_patch_port_concat,   -- *** "SUB 패치네임" + "_" + "SUB 패치포트"
+      eqp2.location  AS end_location,
+      eqp2.eqp_name       AS end_eqp_name,   -- *** END 업무명
+      ci.END_PORT         AS end_port,   -- *** END 포트번호(cable_install 테이블)
+      ci.INSTALL_DATE     AS cable_install_date,
+      c.REMARKS
+  --    DATE_FORMAT(c.REG_DT,'%Y-%m-%d %H:%i:%s') AS reg_dt
+    FROM tb_patch_connection c
+      -- MAIN 패치 연결
+      JOIN tb_patch_device d1 ON c.MAIN_PATCH_ID = d1.PATCH_ID
+      JOIN tb_patch_port   p1 ON c.MAIN_PORT_ID  = p1.PORT_ID
+      -- SUB 패치 연결
+      JOIN tb_patch_device d2 ON c.SUB_PATCH_ID = d2.PATCH_ID
+      JOIN tb_patch_port   p2 ON c.SUB_PORT_ID  = p2.PORT_ID
+      -- eqp_temp (MAIN, SUB) : c.MAIN_ASSET_ID -> eqp1.asset_id, c.SUB_ASSET_ID -> eqp2.asset_id
+      LEFT JOIN tb_eqp_temp eqp1 ON c.MAIN_ASSET_ID = eqp1.asset_id
+      LEFT JOIN tb_eqp_temp eqp2 ON c.SUB_ASSET_ID  = eqp2.asset_id
+      -- cable_install : (c.MAIN_ASSET_ID == ci.START_ASSET_ID) & (c.SUB_ASSET_ID == ci.END_ASSET_ID)
+      LEFT JOIN tb_cable_install ci ON ci.START_ASSET_ID = c.MAIN_ASSET_ID AND ci.END_ASSET_ID = c.SUB_ASSET_ID
+  WHERE 1=1
+  ]]>
+        <if test="patchCategory != null and patchCategory != ''">
+            AND (d1.PATCH_CATEGORY = #{patchCategory} OR d2.PATCH_CATEGORY = #{patchCategory})
+        </if>
+        LIMIT #{start}, #{page}
+    </select>
+
+    <select id="selectPatchListCount" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM tb_patch_connection c
+                 JOIN tb_patch_device d1 ON c.MAIN_PATCH_ID = d1.PATCH_ID
+                 JOIN tb_patch_port p1 ON c.MAIN_PORT_ID = p1.PORT_ID
+                 JOIN tb_patch_device d2 ON c.SUB_PATCH_ID = d2.PATCH_ID
+                 JOIN tb_patch_port p2 ON c.SUB_PORT_ID = p2.PORT_ID
+        WHERE 1=1
+        <if test="patchCategory != null and patchCategory != ''">
+            AND (d1.PATCH_CATEGORY = #{patchCategory} OR d2.PATCH_CATEGORY = #{patchCategory})
+        </if>
+    </select>
+
+    <!-- 패치 상세 조회 -->
+    <select id="selectPatchDetail" resultType="java.util.HashMap">
+        <![CDATA[
+        SELECT
+            ci.INSTALL_ID       AS install_id,
+            ci.START_ASSET_ID   AS start_asset_id,
+            ci.START_PORT       AS start_port,
+            ci.END_ASSET_ID     AS end_asset_id,
+            ci.END_PORT         AS end_port,
+            ci.CABLE_TYPE       AS cable_type,
+            ci.CABLE_COLOR      AS cable_color,
+            ci.CABLE_LENGTH     AS cable_length,
+            ci.INSTALL_DATE     AS install_date,
+            ci.REMARKS          AS remarks,
+
+            eqp.eqp_name        AS start_eqp_name,
+            eqp.location        AS start_location,
+            eqp2.eqp_name       AS end_eqp_name,
+            eqp2.location       AS end_location
+
+        FROM tb_cable_install ci
+                 LEFT JOIN tb_eqp_temp eqp
+                           ON eqp.asset_id = ci.START_ASSET_ID
+                 LEFT JOIN tb_eqp_temp eqp2
+                           ON eqp2.asset_id = ci.END_ASSET_ID
+        WHERE ci.INSTALL_ID = #{install_id}
+        ]]>
+    </select>
+
+    <!-- 패치(케이블) 정보 업데이트 -->
+    <update id="updatePatchInfo">
+        <![CDATA[
+        UPDATE tb_cable_install
+        SET
+            START_ASSET_ID = #{start_asset_id},
+            START_PORT     = #{start_port},
+            END_ASSET_ID   = #{end_asset_id},
+            END_PORT       = #{end_port},
+            CABLE_TYPE     = #{cable_type},
+            CABLE_COLOR    = #{cable_color},
+            CABLE_LENGTH   = #{cable_length},
+            INSTALL_DATE   = #{install_date},
+            REMARKS        = #{remarks},
+            UPD_ID         = #{upd_id},
+            UPD_DT         = NOW()
+        WHERE INSTALL_ID = #{install_id}
+        ]]>
+    </update>
+
+    <select id="excelPatchList" parameterType="map" resultType="map">
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY c.CONNECTION_ID) AS NO,
+      eqp1.location  AS START_좌표,
+      eqp1.eqp_name       AS START_업무명,
+      ci.START_PORT       AS START_포트번호,
+        CONCAT(d1.PATCH_NAME, '_', p1.PORT_NAME) AS START_patch_port,
+        CONCAT(d2.PATCH_NAME, '_', p2.PORT_NAME) AS END_patch_port,
+      eqp2.location  AS END_좌표,
+      eqp2.eqp_name       AS END_업무명,
+      ci.END_PORT         AS END_포트번호,
+      ci.INSTALL_DATE     AS 포설일자,
+      c.REMARKS AS 비고
+        FROM tb_patch_connection c
+            JOIN tb_patch_device d1 ON c.MAIN_PATCH_ID = d1.PATCH_ID
+            JOIN tb_patch_port   p1 ON c.MAIN_PORT_ID  = p1.PORT_ID
+            JOIN tb_patch_device d2 ON c.SUB_PATCH_ID = d2.PATCH_ID
+            JOIN tb_patch_port   p2 ON c.SUB_PORT_ID  = p2.PORT_ID
+            LEFT JOIN tb_eqp_temp eqp1 ON c.MAIN_ASSET_ID = eqp1.asset_id
+            LEFT JOIN tb_eqp_temp eqp2 ON c.SUB_ASSET_ID  = eqp2.asset_id
+            LEFT JOIN tb_cable_install ci ON ci.START_ASSET_ID = c.MAIN_ASSET_ID AND ci.END_ASSET_ID = c.SUB_ASSET_ID
+        WHERE 1=1
+        <if test="patchCategory != null and patchCategory != ''">
+            AND (d1.PATCH_CATEGORY = #{patchCategory} OR d2.PATCH_CATEGORY = #{patchCategory})
+        </if>
+    </select>
+
+
+        </mapper>

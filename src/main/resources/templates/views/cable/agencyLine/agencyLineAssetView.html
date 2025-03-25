@@ -1,0 +1,219 @@
+<!--
+File Name : agencyLineAssetView.html
+Description: 선번장관리 > 기관회선관리 > 케이블 수정 팝업 > 자산ID 검색 팝업
+Author: 구명회
+Created On: 2025-02-06
+Revision History:
+  - 2025-02-06: 팝업 페이지 퍼블리싱 완료
+  - 2025-03-17: custom-modal.js 기능 적용
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/popuplayout}">
+<head>
+    <style>
+
+    </style>
+</head>
+<main layout:fragment="content"
+      style="
+         margin: 0; padding: 0;
+         display: flex;        /* 추가 */
+         flex-direction: column;
+         height: 100vh;        /* 또는 100% */
+         background-color: #f5f5f5;">
+    <div class="pageTitle" style="padding: 0 20px;">
+        <div id="popup-page-title">➖ 검색</div>
+    </div>
+
+    <div style="flex: 1; overflow: auto;">
+        <div class="contentCardWrap custom-width-min-500 custom-margin-bottom-20">
+
+            <div class="flex-row-between custom-padding-10">
+                <p style="margin: 0;">START</p>
+                <div class="custom-button-wrap custom-margin-left-10">
+                    <button type="button" class="custom-btn custom-blue-btn" onclick="insertAssetInfo()">
+                        <img src='/images/icon/etc/register.svg' alt='등록' class='btn-icon'>등록</button>
+                    <button type="button" class="custom-btn custom-blue-btn" onclick="searchButton()">
+                        <img src='/images/icon/btn/search.svg' alt='검색' class='btn-icon'>검색</button>
+                </div>
+            </div>
+
+            <div id="foldableContent" class="tbl-bootstrap-wrap custom-border-top-solid">
+                <table class="table-hover-delete">
+                    <tbody>
+
+                    <tr>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="asset_id" class="custom-tb-title-text">자산ID</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="asset_id" name="asset_id" class="custom-input" readonly />
+                        </td>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="config_id" class="custom-tb-title-text">구성ID</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <input id="config_id" name="config_id" class="custom-input" />
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="contentCardWrap custom-width-min-500">
+            <div class="custom-border-top-solid custom-padding-bottom-5">
+                <div id="grid" class="custom-tui-grid"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+            const tuiColumns = [
+                {
+                    header: 'NO',
+                    name: 'No',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '자산ID',
+                    name: 'asset_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '구성ID',
+                    name: 'config_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '업무명',
+                    name: 'eqp_name',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '포트',
+                    name: 'port',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '좌표',
+                    name: 'location',
+                    hidden: true,
+                },
+                {
+                    header: '선택',
+                    name: 'selection',
+                    align: 'center',
+                    formatter: function () {
+                        return `<input type="radio" name="radio-group" />`;
+                    },
+
+                },
+            ];
+
+            $(function() {
+                // 엔터키 이벤트 처리
+                $('#config_id').keypress(function(e) {
+                    if (e.which === 13) {
+                        searchButton();
+                    }
+                });
+
+                let assetId = /*[[${assetId}]]*/;
+
+                // 자산ID 필드에 값 설정
+                if (assetId) {
+                    $('#asset_id').val(assetId);
+                }
+
+                gridManager.grid({
+                    url: "/cable/agency/cableInfoAssetList",
+                    columns: tuiColumns,
+                    gridElementId: "grid",
+                    paginationOption: true,
+                    data: {asset_id : assetId},
+                });
+            });
+
+            // 구성ID 검색
+            function searchButton() {
+                const assetId = $('#asset_id').val();
+                const configId = $('#config_id').val();
+
+                // 로딩 표시
+                alert3('load');
+
+                let param = {
+                    asset_id: assetId,
+                    config_id: configId
+                };
+
+                gridManager.updateGrid("grid", param)
+                    .then(function() {
+                        // 검색 완료 후 로딩 표시 닫기
+                        alert3Close();
+                    })
+                    .catch(function(error) {
+                        alert3Close();
+                        alert2("오류", "데이터 검색 중 오류가 발생했습니다.", "error", "확인");
+                        console.error("검색 오류:", error);
+                    });
+            }
+
+            // 자산 등록
+            function insertAssetInfo() {
+                const selectedRadio = $("#grid").find("input[type='radio']:checked");
+
+                if (selectedRadio.length === 0) {
+                    modalManager.show({
+                        title: "알림",
+                        html: "등록할 자산을 선택해주세요",
+                        icon: "warning",
+                        confirmButtonText: "확인",
+                        showCancelButton: false
+                    });
+                    return;
+                }
+
+                const rowIndex = selectedRadio.closest('tr').index();
+                const rowData = gridManager.getRadioRows("grid", rowIndex);
+
+                if (!rowData) {
+                    modalManager.show({
+                        title: "오류",
+                        html: "선택한 데이터를 가져올 수 없습니다.",
+                        icon: "error",
+                        confirmButtonText: "확인",
+                        showCancelButton: false
+                    });
+                    return;
+                }
+
+                // 선택 확인 modal
+                modalManager.show({
+                    title: "확인",
+                    html: "선택한 자산 정보를 등록하시겠습니까?",
+                    icon: "question",
+                    confirmButtonText: "등록",
+                    cancelButtonText: "취소",
+                    showCancelButton: true,
+                    callback: function() {
+                        window.returnValue = rowData;
+                        window.close();
+                    }
+                });
+            }
+        </script>
+    </th:block>
+</main>
+</html>

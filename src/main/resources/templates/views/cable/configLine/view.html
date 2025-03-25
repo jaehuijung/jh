@@ -1,0 +1,403 @@
+<!--
+File Name : view.html
+Description: 선번장관리 > 구성ID갱신
+Author: 구명회
+Created On: 2025-02-07
+Revision History:
+  - 2025-02-06: 페이지 퍼블리싱 완료
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<head>
+</head>
+<main layout:fragment="content">
+
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+
+        <div class="flex-row-end custom-padding-10">
+            <p id="inquiry_time" style="margin: 0;">조회시간 : 2023-05-11 09:11:30</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="searchButton()">
+                    <img src='/images/icon/btn/search.svg' alt='검색' class='btn-icon'>검색</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="toggleFold()">∨</button>
+            </div>
+        </div>
+
+        <div id="foldableContent" class="tbl-bootstrap-wrap custom-border-top-solid">
+            <table class="table-hover-delete">
+                <tbody>
+                <tr>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">타입</label>
+                    </td>
+                    <td colspan="3" class="custom-tb-content custom-width-28per">
+                        <select id="asset_id" name="asset_id" class="custom-select" style="width: 60% !important;">
+                            <option value="1">전체</option>
+                            <!--
+                            <option value="2">테스트 1</option>
+                            <option value="3">테스트 2</option>
+                            -->
+                        </select>
+                        <select id="asset_id2" name="asset_id2" class="custom-select" style="width:35% !important;">
+                            <option value="1">전체</option>
+                            <!--
+                            <option value="2">테스트 3</option>
+                            <option value="3">테스트 4</option>
+                            -->
+                        </select>
+                    </td>
+                    <td colspan="2" class="custom-tb-content custom-width-19per">
+                        <label class="custom-checkbox">
+                            <input type="checkbox"><span></span>패치구간
+                        </label>
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">전산실</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <select id="asset_id" name="asset_id" class="custom-select">
+                            <option value="1">전체</option>
+                            <!--
+                            <option value="2">테스트 5</option>
+                            <option value="3">테스트 6</option>
+                            -->
+                        </select>
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">회선상태</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <select id="asset_id" name="asset_id" class="custom-select">
+                            <option value="1">전체</option>
+                            <!--
+                            <option value="2">테스트 7</option>
+                            <option value="3">테스트 8</option>
+                            -->
+                        </select>
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">전용회선</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <select id="asset_id" name="asset_id" class="custom-select">
+                            <option value="1">전체</option>
+                            <!--
+                            <option value="2">테스트 9</option>
+                            <option value="3">테스트 10</option>
+                            -->
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="custom-tb-title custom-width-52per">
+                        <label for="asset_id" class="custom-tb-title-text">START</label>
+                    </td>
+                    <td colspan="6" class="custom-tb-title custom-width-48per">
+                        <label for="asset_id" class="custom-tb-title-text">END</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">구성(자산)ID</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="asset_id" name="asset_id" class="custom-input" />
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">좌표</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="asset_id" name="asset_id" class="custom-input" />
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">업무명</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="asset_id" name="asset_id" class="custom-input" />
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">구성(자산)ID</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="asset_id" name="asset_id" class="custom-input" />
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">좌표</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="asset_id" name="asset_id" class="custom-input" />
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">업무명</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="asset_id" name="asset_id" class="custom-input" />
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="contentCardWrap custom-width-min-1280">
+        <div class="flex-row-between custom-padding-10">
+            <p id="table-cnt" style="margin: 0;">전체 개수 : 105개</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="updateConfigId()">
+                    <img src='/images/icon/btn/reset.svg' alt='갱신' class='btn-icon'>갱신</button>
+                <button type="button" class="custom-btn custom-gray-btn" onclick="downloadCableInfo()">
+                    <img src='/images/icon/btn/download.svg' alt='엑셀' class='btn-icon'>엑셀</button>
+            </div>
+        </div>
+
+        <div class="custom-border-top-solid custom-padding-bottom-5">
+            <div id="grid"></div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+
+            const tuiColumns = [
+                {
+                    header: 'NO',
+                    name: 'install_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '자산ID',
+                    name: 'start_asset_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '동일ID',
+                    name: 'start_same_id',
+                    sortable: true,
+                    align: 'center',
+                    formatter: function () {
+                        return "1";
+                    }
+                },
+                {
+                    header: '구성ID',
+                    name: 'start_config_id',
+                    sortable: true,
+                    align: 'center',
+                    formatter: function (data) {
+                        let row = data.row;
+                        let start_config_id = row.start_config_id; // 현재 구성ID의 값
+                        if (start_config_id == null) {
+                            start_config_id = '신규'
+                        }
+                        else{
+                            start_config_id = '신규 => <span class="custom-font-color-red ">' + start_config_id + '</span>';
+                        }
+                        return start_config_id; // 값이 없거나 잘못된 경우
+                    },
+
+                },
+                {
+                    header: '좌표',
+                    name: 'start_location',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '업무명',
+                    name: 'start_eqp_name',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '포트',
+                    name: 'start_port',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '자산ID',
+                    name: 'end_asset_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '동일ID',
+                    name: 'end_same_id',
+                    sortable: true,
+                    align: 'center',
+                    formatter: function () {
+                        return "1";
+                    }
+                },
+                {
+                    header: '구성ID',
+                    name: 'end_config_id',
+                    sortable: true,
+                    align: 'center',
+                    formatter: function (data) {
+                        let row = data.row;
+                        let end_config_id = row.end_config_id; // 현재 구성ID의 값
+                        if (end_config_id == null) {
+                            end_config_id = '신규'
+                        }
+                        else{
+                            end_config_id = '신규 => <span class="custom-font-color-red ">' + end_config_id + '</span>';
+                        }
+                        return end_config_id; // 값이 없거나 잘못된 경우
+                    },
+                },
+                {
+                    header: '좌표',
+                    name: 'end_location',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '업무명',
+                    name: 'end_eqp_name',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '포트',
+                    name: 'end_port',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '케이블 타입',
+                    name: 'cable_type',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '케이블 색상',
+                    name: 'cable_color',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '케이블 길이',
+                    name: 'cable_length',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '포설일자',
+                    name: 'install_date',
+                    sortable: true,
+                    align: 'center',
+                },
+            ];
+
+            const tuiComplexColumns = [
+                {
+                    header: 'START',
+                    name: 'start',
+                    childNames: ['start_asset_id', 'start_config_id', 'start_location', 'start_eqp_name', 'start_port'],
+                },
+                {
+                    header: 'END',
+                    name: 'end',
+                    childNames: ['end_asset_id', 'end_config_id', 'end_location', 'end_eqp_name', 'end_port'],
+                },
+            ]
+
+            $(function() {
+                gridManager.grid({
+                    url: "/cable/configId/list",
+                    columns: tuiColumns,
+                    complexColumns: tuiComplexColumns,
+                    checkbox: true,
+                    gridElementId: "grid",
+                    tableCountId : "table-cnt",
+                    paginationOption: true,
+                });
+            });
+
+
+            function updateConfigId(){
+                let selectedRow = gridManager.getCheckedRows("grid");
+                if (selectedRow.length === 0) {
+                    alert2("알림", "갱신할 회선을 선택해주세요.", "info", "확인");
+                    return false
+                }
+
+                modalManager.show({
+                    title: "알림",
+                    html: "갱신하시겠습니까?",
+                    icon: "info",
+                    confirmButtonText: "저장",
+                    cancelButtonText: '취소',
+                    showCancelButton: true,
+                    heightAuto: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        let upd_id = /*[[${accountData.userId}]]*/; // 현재 사용자 아이디
+                        let start_asset_id = selectedRow.map(row => row.start_asset_id)
+                        let end_asset_id   = selectedRow.map(row => row.end_asset_id);
+
+                        $.ajax({
+                            url: '/cable/configId/updateConfigId',
+                            method: 'post',
+                            contentType: 'application/json',
+                            dataType: 'JSON',
+                            data : JSON.stringify({upd_id, start_asset_id, end_asset_id}),
+                            success: function (res) {
+                                if (!res.errorCode) {
+                                    alert('데이터를 갱신하는 중 오류가 발생했습니다.');
+                                    return false;
+                                }
+
+                                alert2('알림', '갱신되었습니다.', 'success', '확인', gridManager.updateGrid("grid"));
+                            },
+                            error: function () {
+                                alert('데이터를 갱신하는 중 오류가 발생했습니다.');
+                            }
+                        });
+                    }
+                });
+            }
+
+            function downloadCableInfo(){
+                modalManager.show({
+                    title: "알림",
+                    html: "구성ID갱신 정보를 다운로드하시겠습니까?",
+                    icon: "info",
+                    confirmButtonText: "다운로드",
+                    cancelButtonText: '취소',
+                    showCancelButton: true,
+                }).then((result) => {
+                    if(result.isConfirmed){
+                        alert3("save");
+
+                        $.ajax({
+                            url: "/cable/configId/excelDownload",
+                            method: "post",
+                            xhrFields: {
+                                responseType: 'blob'
+                            }
+                        }).done(function(res) {
+                            alert3Close();
+                        }).then(function(res) {
+                            downloadFileFunction(res, 'cableConfigIdListTemplate.xlsx');
+                            alert2('알림', '엑셀파일로 다운로드되었습니다.', 'info', '확인');
+                        }).catch(function() {
+                            alert2('알림', '엑셀 파일을 다운로드하는 중 오류가 발생했습니다. 관리자에게 문의하세요.', 'error', '확인');
+                        });
+                    }
+                });
+            }
+
+
+        </script>
+    </th:block>
+</main>
+
+</html>

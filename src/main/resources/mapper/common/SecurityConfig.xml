@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper 
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cms.gongju.common.security.configMapper">
+
+    <select id="getSecurityUserInfoList" parameterType="String" resultType="cms.gongju.common.security.MemberDao">
+        /* getSecurityUserInfoList */
+        select
+            `USER_ID` as userId,
+            `USER_PWD` as userPwd,
+            `GROUP_ID` as groupId,
+            `USER_NAME` as userName,
+            `JOB_TITLE` as jobTitle,
+            `DEPT_NAME` as deptName,
+            `CONTACT` as contact,
+            `ALLOWED_IPS` as allowedIps,
+            `FIRST_PAGE` as firstPage,
+            `NTOPS_ID` as ntopsId,
+            `LAST_LOGIN` as lastLogin,
+            `IS_DELETED` as isDeleted,
+            `REG_ID` as regId,
+            `REG_DT` as regDt,
+            `UPD_ID` as updId,
+            `UPD_DT` as updDt
+        from
+            tb_user
+        where
+            BINARY `USER_ID` = #{id}
+            and `IS_DELETED` = 'N'
+    </select>
+
+    <select id="getSecurityUserAuthList" parameterType="map" resultType="map">
+        /* getSecurityUserAuthList */
+        SELECT
+            m.`MENU_ID`,
+            m.`PARENT_MENU_ID`,
+            m.`MENU_NAME`,
+            m.`MENU_ROLE`,
+            m.`MENU_PATH`,
+            m.`MENU_ORDER`,
+            m.`MENU_AUTH`,
+            ma.`R`,
+            ma.`U`
+        FROM
+            tb_group_menu_auth ma
+                JOIN tb_menu m
+                     ON ma.MENU_ID = m.MENU_ID
+                JOIN `tb_account_group` g
+                     ON ma.GROUP_ID = g.GROUP_ID
+        WHERE
+            g.GROUP_ID = #{groupId}
+    </select>
+
+    <update id="updateUserLogin" parameterType="String">
+        /* updateUserLogin */
+        UPDATE tb_user
+        SET `LAST_LOGIN` = now()
+        WHERE `USER_ID` = #{userId}
+    </update>
+
+    <!-- 사용자의 첫 페이지 url 조회 -->
+    <select id="getFirstPageUrl" parameterType="String" resultType="String">
+        select `MENU_PATH`
+        from `tb_menu`
+        where `MENU_ID` = #{firstPage}
+    </select>
+
+</mapper>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cms.gongju.report.mapper.ReportStatisticsMapper">
+
+    <!-- 1) 기관회선 현황 -->
+    <select id="selectAgencyLine" resultType="map" parameterType="map">
+        <!-- 예: rowNum, categoryName, verticalCount, infraCount, verticalHorizontalSum, directConnection, totalCount -->
+        SELECT 1 AS rowNum, '광' AS categoryName, 643 AS verticalCount, 954 AS infraCount,
+        1396 AS verticalHorizontalSum, 44829 AS directConnection, 47822 AS totalCount
+        UNION ALL
+        SELECT 2, 'UTP', 207, 509, 716, 20681, 21398
+        UNION ALL
+        SELECT 3, '합계', 850, 1463, 2313, 65510, 69220
+    </select>
+
+    <!-- 2) 케이블 타입별 현황 -->
+    <select id="selectCableType" resultType="map" parameterType="map">
+        <!-- rowNum, cableType, lineCount, verticalCount, horizontalCount, infraCount, vhSum, directConnection -->
+        SELECT 1 AS rowNum, 'LC-LC' AS cableType, 46263 AS lineCount, 609 AS verticalCount,
+        952 AS horizontalCount, 1396 AS infraCount, 2005 AS vhSum, 43306 AS directConnection
+        UNION ALL
+        SELECT 2, 'LC-SC', 62, 16, 2, 0, 18, 44
+        UNION ALL
+        SELECT 3, 'MPO', 1435, 0, 0, 0, 0, 1435
+        UNION ALL
+        SELECT 4, 'MTRJ-LC', 12, 0, 0, 0, 0, 12
+    </select>
+
+    <!-- 3) 작업리스트 -->
+    <select id="selectWorkList" resultType="map" parameterType="map">
+        <!--
+          rowNum, orgName, requestType, startDate, endDate,
+          workPurpose, workerName, targetLine, lineCount, contact,
+          positionTitle, deptName, requestDate, requestId (for popup or button)
+        -->
+        SELECT 1 AS rowNum, 'A기관' AS orgName, 'INSTALL' AS requestType,
+        '2025-02-15' AS startDate, '2025-02-16' AS endDate,
+        '망연동', '홍길동' AS workerName, '광케이블_연동_1' AS targetLine,
+        12 AS lineCount, '010-1111-2222' AS contact,
+        '주무관' AS positionTitle, '정보화팀' AS deptName,
+        '2025-02-10' AS requestDate,
+        101 AS requestId
+        UNION ALL
+        SELECT 2, 'B기관', 'REMOVE',
+        '2025-02-14', '2025-02-14',
+        '케이블철거', '김철수', 'UTP_철거_2',
+        5, '010-1234-5678', '사무관', '총무과',
+        '2025-02-13', 102
+        UNION ALL
+        SELECT 3, 'C기관', 'INSTALL',
+        '2025-03-01', '2025-03-02',
+        '시스템증설', '이영희', 'MPO연결_장비X',
+        20, '010-9999-8888', '주무관', '전산실',
+        '2025-02-20', 103
+    </select>
+
+</mapper>

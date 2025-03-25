@@ -1,0 +1,207 @@
+<!--
+File Name : requestManageList.html
+Description: 신청관리 > 통신공사 및 검수
+- custom-modal.js 적용: 기존 Bootstrap 모달 제거
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <meta charset="UTF-8"/>
+    <title>케이블 작업 신청 내역 관리</title>
+    <style>
+        .btn-xs-work {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            line-height: 1.2;
+            border-radius: 0.2rem;
+            background-color: #f0f0f0;
+            color: #333;
+            border: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-xs-work:hover {
+            background-color: #d0e8fc;
+        }
+
+        .btn-xs-form {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            line-height: 1.2;
+            background: #024186;
+            color: #fff;
+            border: none;
+        }
+
+        .btn-xs-exam {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            line-height: 1.2;
+            background: #024186;
+            color: #fff;
+            border: none;
+        }
+
+        /* 애니메이션 및 스타일 개선을 위한 CSS */
+        .border-dashed {
+            border-style: dashed !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .file-row:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        /* 파일 아이콘 색상 */
+        .bi-file-earmark-pdf.text-danger { color: #dc3545 !important; }
+        .bi-file-earmark-image.text-success { color: #198754 !important; }
+        .bi-file-earmark-zip.text-warning { color: #ffc107 !important; }
+        .bi-file-earmark-excel.text-success { color: #198754 !important; }
+        .bi-file-earmark-word.text-primary { color: #0d6efd !important; }
+
+        .file-action-btn {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            transition: all 0.2s ease;
+        }
+
+        .file-action-btn:hover {
+            background-color: #e0e0e0;
+            color: #222;
+        }
+
+        .file-action-btn:active {
+            background-color: #d0d0d0;
+            color: #111;
+        }
+
+        /* 버튼 아이콘 스타일 */
+        .custom-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-icon {
+            margin-right: 5px;
+        }
+
+        /* 모달 그리드 컨테이너 */
+        .custom-modal-grid-container {
+            width: 100%;
+            height: 300px;
+            min-height: 300px;
+            position: relative;
+            display: block;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<main layout:fragment="content">
+    <!-- ========================= [검색영역] ========================= -->
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+        <div class="flex-row-end custom-padding-10">
+            <p id="inquiry_time" style="margin: 0;">조회시간: <span id="currentTime"></span></p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="doSearch()">
+                    <img src='/images/icon/btn/search.svg' height="13"  alt='검색' class='btn-icon'>검색</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="toggleFold()">∨</button>
+            </div>
+        </div>
+
+        <!-- 접이식 검색조건 영역 -->
+        <div id="foldableArea" class="tbl-bootstrap-wrap custom-border-top-solid">
+            <table class="table-hover-delete">
+                <tbody>
+                <tr>
+                    <!-- 기관명 -->
+                    <td class="custom-tb-title custom-width-5per">
+                        <label class="custom-tb-title-text">기관명</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-28per">
+                        <select id="searchOrgName" class="custom-select">
+                            <option value="">전체</option>
+                            <option value="경찰청">경찰청</option>
+                            <option value="국세청">국세청</option>
+                            <option value="산림청">산림청</option>
+                        </select>
+                    </td>
+                    <!-- 구분 (포설/제거) -->
+                    <td class="custom-tb-title custom-width-5per">
+                        <label class="custom-tb-title-text">구분</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-28per">
+                        <select id="searchRequestType" class="custom-select">
+                            <option value="">전체</option>
+                            <option value="INSTALL">포설</option>
+                            <option value="REMOVE">제거</option>
+                        </select>
+                    </td>
+                    <!-- 승인상태 (대기/승인/반려 등) -->
+                    <td class="custom-tb-title custom-width-5per">
+                        <label class="custom-tb-title-text">승인상태</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-28per">
+                        <select id="searchApprovalStatus" class="custom-select">
+                            <option value="">전체</option>
+                            <option value="대기">대기</option>
+                            <option value="승인">승인</option>
+                            <option value="반려">반려</option>
+                        </select>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ========================= [목록 + 버튼영역] ========================= -->
+    <div class="contentCardWrap custom-width-min-1280">
+        <div class="flex-row-between custom-padding-10">
+            <p style="margin: 0;"><span id="totalCount">0</span>건</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="approveRequests()">
+                    <img src='/images/icon/etc/order_approve.svg' alt='승인' class='btn-icon'>승인</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="rejectRequests()">
+                    <img src='/images/icon/etc/reject.svg'  alt='반려' class='btn-icon'>반려</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="deleteRequests()">
+                    <img src='/images/icon/etc/delete.svg' alt='삭제' class='btn-icon'>삭제</button>
+                <button type="button" class="custom-btn custom-gray-btn" onclick="exportExcel()">
+                    <img src='/images/icon/btn/download.svg' height="10" alt='엑셀' class='btn-icon'>엑셀</button>
+            </div>
+        </div>
+
+        <div class="custom-border-top-solid">
+            <!-- Handsontable 컨테이너 -->
+            <div id="requestListHot" class="custom-tui-grid"></div>
+        </div>
+    </div>
+
+    <!-- 모달이 동적으로 생성되므로 모달 관련 HTML 제거 -->
+
+    <script th:inline="javascript">
+        let regId = /*[[${accountData.userId}]]*/; // 현재 사용자 아이디
+    </script>
+
+    <script th:inline="javascript" th:src="@{/js/cablerequest/requestManageList.js}"></script>
+</main>
+</html>

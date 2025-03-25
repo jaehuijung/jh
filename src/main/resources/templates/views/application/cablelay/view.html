@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+
+</head>
+<main layout:fragment="content">
+
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+
+        <div class="flex-row-between custom-padding-10">
+            <p id="inquiry_time" style="margin: 0;">요청자정보</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="searchButton()">임시저장</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="searchButton()">불러오기</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="searchButton()">등록</button>
+            </div>
+        </div>
+
+        <div class="tbl-bootstrap-wrap custom-border-top-solid">
+            <table class="table-hover-delete">
+                <tbody>
+                <tr>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">기관명</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <select id="asset_id" name="asset_id" class="custom-select">
+                            <option value="1">전체</option>
+                            <option value="2">테스트 1</option>
+                            <option value="3">테스트 2</option>
+                        </select>
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">직급(직책)</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="asset_id" name="asset_id" class="custom-input" />
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">주무관</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="asset_id" name="asset_id" class="custom-input" />
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">연락처</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="asset_id" name="asset_id" class="custom-input" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">부서명</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="asset_id" name="asset_id" class="custom-input" />
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">작업목적</label>
+                    </td>
+                    <td colspan="3" class="custom-tb-content custom-width-21per">
+                        <input id="asset_id" name="asset_id" class="custom-input" />
+                    </td>
+                    <td colspan="2" class="custom-tb-content custom-width-16per">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">작업일자</label>
+                    </td>
+                    <td colspan="7" class="custom-tb-content">
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group"><span></span>금일
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group"><span></span>금월
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group"><span></span>기간선택
+                        </label>
+                        <input type="text" name="multi-datetime" class="custom-input custom-width-150" />
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+
+        <div class="flex-row-between custom-padding-10">
+            <p id="info-table-cnt" style="margin: 0;">작업자정보</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="searchButton()">검색</button>
+                <button type="button" class="custom-btn custom-gray-btn" onclick="searchButton()">추가</button>
+            </div>
+        </div>
+
+        <div class="custom-border-top-solid">
+            <div id="info-handsontable-container"></div>
+        </div>
+    </div>
+
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+
+        <div class="flex-row-between custom-padding-10">
+            <p id="history-table-cnt" style="margin: 0;">작업내역</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="searchButton()">검색</button>
+                <button type="button" class="custom-btn custom-gray-btn" onclick="searchButton()">추가</button>
+            </div>
+        </div>
+
+        <div class="custom-border-top-solid">
+            <div id="history-handsontable-container"></div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script th:src="@{/js/application/cablelay/view.js}"></script>
+    </th:block>
+</main>
+
+</html>

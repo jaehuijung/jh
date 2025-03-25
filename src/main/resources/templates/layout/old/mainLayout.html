@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>케이블관리시스템</title>
+    <link th:href="@{/css/old/common.css}" rel="stylesheet"/>
+    <link th:href="@{/css/layout.css}" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- 상단 공통 헤더 영역 -->
+<header>
+    <div id="headerArea">
+        <h1>국가정보자원관리원 케이블 관리시스템</h1>
+        <!-- 필요시 로그인 사용자 정보, 메뉴 등 -->
+    </div>
+</header>
+
+<!-- 좌측 사이드바/메뉴 -->
+<nav>
+    <ul>
+        <li><a th:href="@{/cable/request/list}">포설신청</a></li>
+        <li><a th:href="@{/cable/request/list}">통신검사 및 검수</a></li>
+        <!-- 기타 메뉴 -->
+    </ul>
+</nav>
+
+<!-- 본문 컨텐츠 영역 -->
+<main layout:fragment="content">
+    <!-- 자식 템플릿에서 대체(render)될 영역 -->
+</main>
+
+<!-- 공통 푸터 영역 -->
+<footer>
+    <div>
+        Copyright ⓒ
+        <span>국가정보자원관리원</span>
+    </div>
+</footer>
+
+<!-- 공통 JS 로드 -->
+<script th:src="@{/js/old/common.js}"></script>
+
+</body>
+</html>

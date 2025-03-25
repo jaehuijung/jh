@@ -1,0 +1,855 @@
+<!--
+File Name : view.html
+Description: 선번장관리 > 기관회선관리
+Author: 구명회
+Created On: 2025-02-06
+Revision History:
+  - 2025-02-06: 페이지 퍼블리싱 완료
+  - 2025-03-17: custom-modal.js 기능 적용
+  - 2025-03-17: modalManager.showExternalPage() 적용
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+
+</head>
+
+<main layout:fragment="content">
+
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+
+        <div class="flex-row-end custom-padding-10">
+            <p id="inquiry_time" style="margin: 0;">조회시간 : 2023-05-11 09:11:30</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="searchHistory()">
+                    <img src='/images/icon/etc/history.svg' alt='이력조회' class='btn-icon'>이력조회</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="searchButton()">
+                    <img src='/images/icon/btn/search.svg' alt='검색' class='btn-icon'>검색</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="toggleFold()">∨</button>
+            </div>
+        </div>
+
+        <div id="foldableContent" class="tbl-bootstrap-wrap custom-border-top-solid">
+            <table class="table-hover-delete">
+                <tbody>
+                <tr>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">타입</label>
+                    </td>
+                    <td colspan="3" class="custom-tb-content custom-width-28per">
+                        <select id="asset_id" name="asset_id" class="custom-select" style="width: 60% !important;">
+                            <option value="1">전체</option>
+                            <!--
+                            <option value="2">테스트 1</option>
+                            <option value="3">테스트 2</option>
+                            -->
+                        </select>
+                        <select id="asset_id2" name="asset_id2" class="custom-select" style="width:35% !important;">
+                            <option value="1">전체</option>
+                            <!--
+                            <option value="2">테스트 3</option>
+                            <option value="3">테스트 4</option>
+                            -->
+                        </select>
+                    </td>
+                    <td colspan="2" class="custom-tb-content custom-width-19per">
+                        <label class="custom-checkbox">
+                            <input type="checkbox"><span></span>패치구간
+                        </label>
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">전산실</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <select id="asset_id" name="asset_id" class="custom-select">
+                            <option value="1">전체</option>
+                            <!--
+                            <option value="2">테스트 5</option>
+                            <option value="3">테스트 6</option>
+                            -->
+                        </select>
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="line_status" class="custom-tb-title-text">회선상태</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <select id="line_status" name="line_status" class="custom-select">
+                            <option value="">전체</option>
+                            <option value="활성">사용</option>
+                            <option value="정지">정지</option>
+                        </select>
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="dedicated_line_category" class="custom-tb-title-text">전용회선</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <select id="dedicated_line_category" name="dedicated_line_category" class="custom-select">
+                            <option value="">전체</option>
+                            <option value="1">SKT</option>
+                            <option value="2">KT</option>
+                            <option value="3">LGU+</option>
+                            <option value="9">기타</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="install_date" class="custom-tb-title-text">포설일자</label>
+                    </td>
+                    <td colspan="5" class="custom-tb-content custom-width-47per">
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group" value="all" checked><span></span>전체
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group" value="today"><span></span>금일
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group" value="this-month"><span></span>금월
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group" value="last-month"><span></span>전월
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group" value="custom-date"><span></span>기간선택
+                        </label>
+                        <input type="text" id="install_date" name="multi-datetime" class="custom-input custom-width-150" />
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="dedicated_line_number" class="custom-tb-title-text">회선번호</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="dedicated_line_number" name="dedicated_line_number" class="custom-input" />
+                    </td>
+                    <td colspan="4" class="custom-tb-content custom-width-37per">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="custom-tb-title custom-width-52per">
+                        <label class="custom-tb-title-text">START</label>
+                    </td>
+                    <td colspan="6" class="custom-tb-title custom-width-48per">
+                        <label class="custom-tb-title-text">END</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="start_asset_config" class="custom-tb-title-text">구성(자산)ID</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="start_asset_config" name="start_asset_config" class="custom-input" />
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="start_location" class="custom-tb-title-text">좌표</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="start_location" name="start_location" class="custom-input" />
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="start_eqp_name" class="custom-tb-title-text">업무명</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="start_eqp_name" name="start_eqp_name" class="custom-input" />
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="end_asset_config" class="custom-tb-title-text">구성(자산)ID</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="end_asset_config" name="end_asset_config" class="custom-input" />
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="end_location" class="custom-tb-title-text">좌표</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="end_location" name="end_location" class="custom-input" />
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="end_eqp_name" class="custom-tb-title-text">업무명</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="end_eqp_name" name="end_eqp_name" class="custom-input" />
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <div class="contentCardWrap custom-width-min-1280">
+
+        <div class="flex-row-between custom-padding-10">
+            <p id="table-cnt" class="custom-tui-grid-cnt" style="margin: 0;">전체 개수 : 105개</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="cableInfoLabelView()">
+                    <img src='/images/icon/btn/print.svg' alt='라벨출력' class='btn-icon'>라벨출력
+                </button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="driverDownload()">
+                    <img src='/images/icon/btn/tools-fill.svg' alt='QR드라이버' class='btn-icon'>QR드라이버
+                </button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="deleteCable()">
+                    <img src='/images/icon/etc/delete.svg' alt='삭제' class='btn-icon'>삭제
+                </button>
+                <button type="button" class="custom-btn custom-gray-btn" onclick="downloadCableInfo()">
+                    <img src='/images/icon/btn/download.svg' alt='엑셀' class='btn-icon'>엑셀</button>
+            </div>
+        </div>
+
+        <div class="custom-border-top-solid custom-padding-bottom-5">
+            <div id="grid" class="custom-tui-grid"></div>
+        </div>
+    </div>
+
+    <!-- 임시저장 목록 모달 -->
+    <div class="modal fade" id="tempRequestModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p style="margin: 0;">임시저장 목록</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="tempRequestHot" style="width:100%; height:300px;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="custom-btn custom-blue-btn" onclick="loadSelectedTempRequest()">
+                        <img src='/images/icon/etc/load_temp.svg' alt='불러오기' class='btn-icon'>불러오기</button>
+                    <button type="button" class="custom-btn custom-gray-btn" data-bs-dismiss="modal">
+                        <img src='/images/icon/etc/close_1.svg' alt='취소' class='btn-icon btn-icon-small'>닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+            function driverDownload(){
+                modalManager.show({
+                    title: "알림",
+                    html: "앱손 프린터 드라이버를 다운로드하시겠습니까?",
+                    icon: "info",
+                    confirmButtonText: "다운로드",
+                    cancelButtonText: '취소',
+                    showCancelButton: true,
+                    callback: function() {
+                        alert3('download');
+                        $.ajax({
+                            url: "/cable/agency/setupDownload",
+                            method: "POST",
+                            xhrFields: {
+                                responseType: 'blob'
+                            }
+                        }).then(function(res) {
+                            const url = window.URL.createObjectURL(res);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'LE_V2201_Setup_KR.zip';
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                            window.URL.revokeObjectURL(url);
+
+                            alert3Close();
+                        }).catch(function(err) {
+                            alert2('오류', '파일 다운로드 중 오류가 발생했습니다. 관리자에게 문의하세요.', 'error', '확인');
+                        });
+                    }
+                });
+            }
+
+            const tuiColumns = [
+                {
+                    header: 'NO',
+                    name: 'install_id',
+                    sortable: true,
+                    align: 'center',
+                    width: 50,
+                },
+                {
+                    header: '자산ID',
+                    name: 'start_asset_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '구성ID',
+                    name: 'start_config_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '좌표',
+                    name: 'start_location',
+                    sortable: true,
+                    align: 'center',
+                    width: 70,
+                },
+                {
+                    header: '업무명',
+                    name: 'start_eqp_name',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '포트',
+                    name: 'start_port',
+                    sortable: true,
+                    align: 'center',
+                    width: 70,
+                },
+                {
+                    header: '자산ID',
+                    name: 'end_asset_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '구성ID',
+                    name: 'end_config_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '좌표',
+                    name: 'end_location',
+                    sortable: true,
+                    align: 'center',
+                    width: 70,
+                },
+                {
+                    header: '업무명',
+                    name: 'end_eqp_name',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '포트',
+                    name: 'end_port',
+                    sortable: true,
+                    align: 'center',
+                    width: 70,
+                },
+
+                {
+                    header: '케이블 타입',
+                    name: 'cable_type',
+                    sortable: true,
+                    align: 'center',
+                    width: 80,
+                },
+                {
+                    header: '케이블 색상',
+                    name: 'cable_color',
+                    sortable: true,
+                    align: 'center',
+                    width: 80,
+                },
+                {
+                    header: '케이블 길이',
+                    name: 'cable_length',
+                    sortable: true,
+                    align: 'center',
+                    width: 80,
+                },
+                {
+                    header: '포설일자',
+                    name: 'install_date',
+                    sortable: true,
+                    align: 'center',
+                    width: 80,
+                },
+                {
+                    header: '수정',
+                    name: 'cable_update',
+                    align: 'center',
+                    width: 70,
+                    formatter: function () {
+                        return '<button type="button" class="custom-btn custom-gray-btn">수정</button>';
+                    },
+                },
+            ];
+
+            const tuiComplexColumns = [
+                {
+                    header: 'START', // Nested Header의 텍스트
+                    name: 'start', // 그룹 이름 (사용자 정의 고유값)
+                    childNames: ['start_asset_id', 'start_config_id', 'start_location', 'start_eqp_name', 'start_port'],
+                },
+                {
+                    header: 'END', // Nested Header의 텍스트
+                    name: 'end', // 그룹 이름 (사용자 정의 고유값)
+                    childNames: ['end_asset_id', 'end_config_id', 'end_location', 'end_eqp_name', 'end_port'],
+                },
+            ]
+
+            $(function() {
+                // 임시저장 목록 모달 그리드 초기화
+                let tempRequestHot = null;
+
+                // 모달 열릴 때 임시저장 목록 로드
+                $('#tempRequestModal').on('shown.bs.modal', function() {
+                    loadTempRequestList();
+                });
+
+                const $installDate = $("#install_date");
+                $installDate.prop({
+                    "disabled": true,
+                    "readonly": true
+                });
+
+                $('input[name="radio-group"]').on('change', function () {
+                    const selectedValue = $(this).val();
+
+                    if (selectedValue === "custom-date") {
+                        $installDate.prop({
+                            "disabled": false,
+                            "readonly": false
+                        });
+                    } else {
+                        $installDate.prop({
+                            "disabled": true,
+                            "readonly": true
+                        });
+                    }
+                });
+
+                ['#start_asset_config', '#start_location', '#start_eqp_name',
+                    '#end_asset_config', '#end_location', '#end_eqp_name',
+                     '#dedicated_line_number'].forEach(function(selector) {
+                    $(selector).keyup(function(e) {
+                        if (e.which == 13) {
+                            searchButton();
+                        }
+                    });
+                });
+
+                gridManager.grid({
+                    url: "/cable/agency/getList",
+                    columns: tuiColumns,
+                    complexColumns: tuiComplexColumns,
+                    checkbox: true,
+                    gridElementId: "grid",
+                    tableCountId: "table-cnt",
+                    paginationOption: true,
+                });
+
+                // 그리드 내 수정 버튼 클릭 - modalManager.showExternalPage() 사용
+                $('#grid').on('click', '.custom-btn', function (event) {
+                    const rowData = gridManager.getRowDataByEvent("grid", event);
+                    if (rowData) {
+                        // popupManager.Prompt() 대신 modalManager.showExternalPage() 사용
+                        modalManager.showExternalPage({
+                            url: `/cable/agency/cableInfoView?install_id=${encodeURIComponent(rowData.install_id)}`,
+                            title: "케이블 정보 수정",
+                            width: "830px",
+                            height: "700px",
+                            fullWidth: false,
+                            footerButtons: [
+                                {
+                                    text: "닫기",
+                                    class: "custom-btn custom-gray-btn",
+                                    callback: function() {
+                                        modalManager.close();
+                                    }
+                                }
+                            ],
+                            onClose: function(returnValue) {
+                                // 모달이 닫힐 때 그리드 새로고침
+                                if (returnValue && returnValue.updated) {
+                                    searchButton(); // 그리드 새로고침
+                                } else {
+                                    // 데이터가 변경되었을 수 있으므로 검색 실행
+                                    searchButton();
+                                }
+                            }
+                        }).catch(error => {
+                            console.error('모달 오류:', error);
+                            alert2('오류', '페이지를 불러오는 중 오류가 발생했습니다.', 'error', '확인');
+                        });
+                    } else {
+                        alert2("알림", "선택된 데이터를 정상적으로 가져오지 못했습니다.", "error", "확인");
+                    }
+                });
+            });
+
+            // 임시저장 목록 로드 함수
+            function loadTempRequestList() {
+                if (!tempRequestHot) {
+                    initTempRequestModal();
+                }
+
+                $.ajax({
+                    url: "/cable/request/getTempList",
+                    type: "GET",
+                    success: function(res) {
+                        tempRequestHot.resetData(res || []);
+                        setTimeout(()=>{
+                            tempRequestHot.refreshLayout();
+                        },0);
+                    },
+                    error: function(err) {
+                        console.error(err);
+                        alert2("오류", "임시저장 목록 조회에 실패했습니다.", "error", "확인");
+                    }
+                });
+            }
+
+            // 임시저장 모달 그리드 초기화
+            function initTempRequestModal() {
+                const container = document.getElementById("tempRequestHot");
+                tempRequestHot = new tui.Grid({
+                    el: container,
+                    data: [],
+                    scrollX: true,
+                    scrollY: true,
+                    bodyHeight: 260,
+                    rowHeaders: [
+                        { type: 'checkbox', header: '', width: 40 }
+                    ],
+                    columns: [
+                        {
+                            header: "제목",
+                            name: "title",
+                            align: "center"
+                        },
+                        {
+                            header: "등록일자",
+                            name: "regDt",
+                            width: 150,
+                            align: "center"
+                        },
+                        {
+                            header: "작성자",
+                            name: "userId",
+                            align: "center"
+                        },
+                        {
+                            header: "requestId",
+                            name: "requestId",
+                            hidden: true
+                        }
+                    ],
+                    columnOptions: { resizable: true }
+                });
+
+                // 단일 선택 구현
+                tempRequestHot.on('check', (ev) => {
+                    const checkedRowKey = ev.rowKey;
+                    const rowCount = tempRequestHot.getRowCount();
+
+                    for (let i = 0; i < rowCount; i++) {
+                        const row = tempRequestHot.getRowAt(i);
+                        const rowKey = row.rowKey;
+                        if (rowKey !== checkedRowKey) {
+                            tempRequestHot.uncheck(rowKey);
+                        }
+                    }
+                });
+            }
+
+            // 선택한 임시저장 데이터 로드
+            function loadSelectedTempRequest() {
+                const checked = tempRequestHot.getCheckedRows();
+                if (!checked || checked.length === 0) {
+                    alert2("알림", "선택된 항목이 없습니다.", "warning", "확인");
+                    return;
+                }
+
+                const row = checked[0];
+                const requestId = row.requestId;
+                if (!requestId) {
+                    alert2("오류", "requestId가 유효하지 않습니다.", "error", "확인");
+                    return;
+                }
+
+                // 모달 닫기
+                $("#tempRequestModal").modal("hide");
+
+                // 선택한 임시저장 데이터 로드 함수 호출
+                if (window.loadTempRequestData) {
+                    window.loadTempRequestData(requestId);
+                } else {
+                    console.warn("부모창에 loadTempRequestData 함수가 없습니다.");
+                    alert2("알림", "데이터를 불러올 수 없습니다.", "warning", "확인");
+                }
+            }
+
+            // 기관회선관리 정보 검색
+            function searchButton(){
+                const selectedRadioValue = $('input[name="radio-group"]:checked').val(); // 선택된 라디오 버튼 값
+                let startDate = "";
+                let endDate = "";
+
+                if (selectedRadioValue === "all") {
+                    // 전체는 포설일자... 없는게 원래 있는지는 모르겠지만
+                    // 일단 없는 것들도 포함해서 전부
+                } else if (selectedRadioValue === "today") {
+                    startDate = moment().format("YYYY-MM-DD");
+                    endDate = moment().format("YYYY-MM-DD");
+                } else if (selectedRadioValue === "this-month") {
+                    startDate = moment().startOf("month").format("YYYY-MM-DD");
+                    endDate = moment().endOf("month").format("YYYY-MM-DD");
+                } else if (selectedRadioValue === "last-month") {
+                    startDate = moment().subtract(1, "month").startOf("month").format("YYYY-MM-DD");
+                    endDate = moment().subtract(1, "month").endOf("month").format("YYYY-MM-DD");
+                } else if (selectedRadioValue === "custom-date") {
+                    const $installDate = $("#install_date");
+                    const installDateRange = $installDate.val();
+                    const dates = installDateRange.split(" - ");
+                    startDate = dates[0].trim();
+                    endDate = dates[1].trim();
+                }
+
+                let data = {
+                    start_date: startDate,
+                    end_date: endDate,
+                    install_date: $("#install_date").val(),
+                    start_asset_config: $("#start_asset_config").val(),
+                    start_location: $("#start_location").val(),
+                    start_eqp_name: $("#start_eqp_name").val(),
+                    end_asset_config: $("#end_asset_config").val(),
+                    end_location: $("#end_location").val(),
+                    end_eqp_name: $("#end_eqp_name").val(),
+                    line_status: $("#line_status").val(),
+                    dedicated_line_category: $("#dedicated_line_category").val(),
+                    dedicated_line_number: $("#dedicated_line_number").val(),
+                };
+
+                gridManager.updateGrid("grid", data);
+            }
+
+            // 이력조회 팝업 - modalManager.showExternalPage() 사용
+            function searchHistory() {
+                modalManager.showExternalPage({
+                    url: `/cable/agency/cableInfoHistoryView`,
+                    title: "이력 조회",
+                    width: "90%",
+                    height: "85vh",
+                    fullWidth: true,
+                    footerButtons: [
+                        {
+                            text: "닫기",
+                            class: "custom-btn custom-gray-btn",
+                            callback: function() {
+                                modalManager.close();
+                            }
+                        }
+                    ]
+                }).catch(error => {
+                    console.error('이력조회 모달 오류:', error);
+                    alert2('오류', '이력조회 페이지를 불러오는 중 오류가 발생했습니다.', 'error', '확인');
+                });
+            }
+
+            // 라벨출력 팝업 - modalManager.showExternalPage() 사용
+            function cableInfoLabelView() {
+                const checkedRows = gridManager.getCheckedRows("grid");
+
+                if(!checkedRows || checkedRows.length===0){
+                    alert2("알림", "선택된 항목이 없습니다.", "info", "확인");
+                    return;
+                }
+
+                const data = checkedRows.map(row => row.install_id);
+
+                modalManager.showExternalPage({
+                    url: `/cable/agency/cableInfoLabelView?data=${encodeURIComponent(data)}`,
+                    title: "라벨 출력",
+                    width: "1100px",
+                    height: "680px",
+                    footerButtons: [
+                        {
+                            text: "인쇄",
+                            class: "custom-btn custom-blue-btn",
+                            callback: function(iframe, iframeWindow) {
+                                // iframe 내부의 인쇄 함수 호출
+                                if (iframeWindow && typeof iframeWindow.printLabels === 'function') {
+                                    iframeWindow.printLabels();
+                                } else {
+                                    alert2('알림', '인쇄 기능을 찾을 수 없습니다.', 'warning', '확인');
+                                }
+                            }
+                        },
+                        {
+                            text: "닫기",
+                            class: "custom-btn custom-gray-btn",
+                            callback: function() {
+                                modalManager.close();
+                            }
+                        }
+                    ]
+                }).catch(error => {
+                    console.error('라벨출력 모달 오류:', error);
+                    alert2('오류', '라벨출력 페이지를 불러오는 중 오류가 발생했습니다.', 'error', '확인');
+                });
+            }
+
+            // 기관회선 삭제
+            function deleteCable() {
+                let selectedRow = gridManager.getCheckedRows("grid");
+                if (selectedRow.length === 0) {
+                    alert2("알림", "삭제할 회선을 선택해주세요.", "info", "확인");
+                    return false;
+                }
+
+                modalManager.show({
+                    title: "알림",
+                    html: "정말 삭제하시겠습니까?",
+                    icon: "info",
+                    confirmButtonText: "삭제",
+                    cancelButtonText: '취소',
+                    showCancelButton: true,
+                    callback: function() {
+                        let selectedRow = gridManager.getCheckedRows("grid");
+
+                        if (selectedRow.length === 0) {
+                            alert2("알림", "삭제할 회선을 선택해주세요.", "info", "확인");
+                            return false;
+                        }
+
+                        let regId = /*[[${accountData.userId}]]*/; // 현재 사용자 아이디
+                        let installId = selectedRow.map(row => row.install_id);
+
+                        $.ajax({
+                            url: '/cable/agency/delete',
+                            method: 'post',
+                            contentType: 'application/json',
+                            data : JSON.stringify({regId, installId}),
+                            dataType : 'JSON',
+                            success: function (res) {
+                                if (!res.errorCode){
+                                    alert2('오류', '데이터를 삭제하는 중 오류가 발생했습니다.', 'error', '확인');
+                                    return false;
+                                }
+
+                                alert2('알림', '삭제가 완료되었습니다!', 'success', '확인', function() {
+                                    gridManager.updateGrid("grid");
+                                });
+                            },
+                            error: function () {
+                                alert2('오류', '데이터를 불러오는 중 오류가 발생했습니다.', 'error', '확인');
+                            }
+                        });
+                    }
+                });
+            }
+
+            function downloadCableInfo(){
+                modalManager.show({
+                    title: "알림",
+                    html: "회선 정보를 다운로드하시겠습니까?",
+                    icon: "info",
+                    confirmButtonText: "다운로드",
+                    cancelButtonText: '취소',
+                    showCancelButton: true,
+                    callback: function() {
+                        alert3("save");
+
+                        const selectedRadioValue = $('input[name="radio-group"]:checked').val();
+                        let startDate = "";
+                        let endDate = "";
+
+                        if (selectedRadioValue === "all") {
+                            // 전체 선택
+                        } else if (selectedRadioValue === "today") {
+                            startDate = moment().format("YYYY-MM-DD");
+                            endDate = moment().format("YYYY-MM-DD");
+                        } else if (selectedRadioValue === "this-month") {
+                            startDate = moment().startOf("month").format("YYYY-MM-DD");
+                            endDate = moment().endOf("month").format("YYYY-MM-DD");
+                        } else if (selectedRadioValue === "last-month") {
+                            startDate = moment().subtract(1, "month").startOf("month").format("YYYY-MM-DD");
+                            endDate = moment().subtract(1, "month").endOf("month").format("YYYY-MM-DD");
+                        } else if (selectedRadioValue === "custom-date") {
+                            const $installDate = $("#install_date");
+                            const installDateRange = $installDate.val();
+                            const dates = installDateRange.split(" - ");
+                            startDate = dates[0].trim();
+                            endDate = dates[1].trim();
+                        }
+
+                        let data = {
+                            start_date: startDate,
+                            end_date: endDate,
+                            install_date: $("#install_date").val(),
+                            start_asset_config: $("#start_asset_config").val(),
+                            start_location: $("#start_location").val(),
+                            start_eqp_name: $("#start_eqp_name").val(),
+                            end_asset_config: $("#end_asset_config").val(),
+                            end_location: $("#end_location").val(),
+                            end_eqp_name: $("#end_eqp_name").val(),
+                        };
+
+                        $.ajax({
+                            url: "/cable/agency/excelDownload",
+                            method: "post",
+                            contentType: "application/json",
+                            data: JSON.stringify(data),
+                            xhrFields: {
+                                responseType: 'blob'
+                            }
+                        }).done(function(res) {
+                            alert3Close();
+                        }).then(function(res) {
+                            downloadFileFunction(res, 'cableAgencyListTemplate.xlsx');
+                            alert2('알림', '엑셀파일로 다운로드되었습니다.', 'info', '확인');
+                        }).catch(function() {
+                            alert2('알림', '엑셀 파일을 다운로드하는 중 오류가 발생했습니다. 관리자에게 문의하세요.', 'error', '확인');
+                        });
+                    }
+                });
+            }
+
+            // 접이식 영역 토글
+            function toggleFold() {
+                $("#foldableContent").toggle();
+            }
+
+            // 파일 다운로드 함수
+            function downloadFileFunction(blob, fileName) {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            }
+
+            // 자산 검색 모달 (자산 검색 페이지를 모달로 표시)
+            function openAssetSearchModal(assetId, type) {
+                modalManager.showExternalPage({
+                    url: `/cable/agency/agencyLineAssetView`,
+                    title: "자산 검색",
+                    width: "600px",
+                    height: "500px",
+                    passParams: { assetId: assetId, type: type },
+                    onClose: function(returnValue) {
+                        if (returnValue) {
+                            console.log("선택된 자산:", returnValue);
+
+                            // type에 따라 START 또는 END 필드에 값 설정
+                            if (type === 'start') {
+                                $("#start_asset_id").val(returnValue.asset_id);
+                                $("#start_config_id").val(returnValue.config_id);
+                                $("#start_location").val(returnValue.location);
+                                $("#start_eqp_name").val(returnValue.eqp_name);
+                            } else if (type === 'end') {
+                                $("#end_asset_id").val(returnValue.asset_id);
+                                $("#end_config_id").val(returnValue.config_id);
+                                $("#end_location").val(returnValue.location);
+                                $("#end_eqp_name").val(returnValue.eqp_name);
+                            }
+                        }
+                    }
+                });
+            }
+        </script>
+
+    </th:block>
+</main>
+
+</html>

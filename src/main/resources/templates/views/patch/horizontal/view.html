@@ -1,0 +1,220 @@
+<!-- /src/main/resources/templates/views/patch/connectionList.html -->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<head>
+    <style>
+        /* 필요시 추가 CSS */
+    </style>
+</head>
+
+<main layout:fragment="content">
+
+    <!-- 검색 영역 -->
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+        <div class="flex-row-end custom-padding-10">
+            <p id="inquiry_time" style="margin: 0;">조회시간 : <span id="currentTime"></span></p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="searchButton()">
+                    <img src='/images/icon/btn/search.svg' alt='검색' class='btn-icon btn-icon-small'>검색</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="toggleFold()">∨</button>
+            </div>
+        </div>
+
+        <div id="foldableContent" class="tbl-bootstrap-wrap custom-border-top-solid">
+            <table class="table-hover-delete">
+                <tbody>
+                <tr>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">전산실</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-28per">
+                        <select id="asset_id" name="asset_id" class="custom-select">
+                            <option value="1">전체</option>
+                            <option value="2">테스트 1</option>
+                            <option value="3">테스트 2</option>
+                        </select>
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">패치</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-28per">
+                        <select id="asset_id" name="asset_id" class="custom-select">
+                            <option value="1">전체</option>
+                            <option value="2">테스트 5</option>
+                            <option value="3">테스트 6</option>
+                        </select>
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">타입</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-28per">
+                        <select id="asset_id" name="asset_id" class="custom-select">
+                            <option value="1">전체</option>
+                            <option value="2">테스트 5</option>
+                            <option value="3">테스트 6</option>
+                        </select>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 목록(Grid) -->
+    <div class="contentCardWrap custom-width-min-1280">
+        <div class="flex-row-between custom-padding-10">
+            <p id="table-cnt" class="custom-tui-grid-cnt" style="margin:0;">전체 개수: 0개</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-gray-btn" onclick="exportExcel()">
+                    <img src='/images/icon/btn/download.svg' height="10" alt='엑셀' class='btn-icon'>엑셀</button>
+            </div>
+        </div>
+        <div class="custom-border-top-solid custom-padding-bottom-5">
+            <!-- gridElementId="toastGrid" -->
+            <div id="toastGrid" class="custom-tui-grid"></div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+            document.getElementById("currentTime").innerText = moment().format("YYYY-MM-DD HH:mm:ss");
+
+            // [1] 그리드 컬럼 정의
+            const tuiColumns = [
+                /*       { header: 'CONN_ID',         name: 'CONNECTION_ID',       width: 80,  align: 'center', sortable: true },*/
+                { header: '좌표',      name: 'start_location',  align: 'center' },
+                { header: '업무명',    name: 'start_eqp_name',  align: 'center' },
+                { header: '포트번호',           name: 'start_port',  width: 120,  align: 'center' },
+                { header: 'patch/port',       name: 'main_patch_port_concat',align: 'center' },
+                { header: 'patch/port',      name: 'sub_patch_port_concat' ,  align: 'center' },
+                { header: '좌표',    name: 'end_location',  align: 'center' },
+                { header: '업무명',           name: 'end_eqp_name',align: 'center' },
+                { header: '포트번호',       name: 'end_port',  width: 120, align: 'center' },
+                { header: '포설일자',       name: 'cable_install_date', align: 'center' },
+                { header: '비고',       name: 'REMARKS', align: 'center' },
+                {
+                    header: '수정',
+                    name: 'detailBtn',
+                    width: 150,
+                    align: 'center',
+                    formatter: function(props) {
+                        if (props.row.install_id) {
+                            return '<button type="button" class="custom-btn custom-gray-btn">수정</button>';
+                        }
+                        return '';
+                    },
+                }
+            ];
+
+            const tuiComplexColumns = [
+                {
+                    header: 'START', // Nested Header의 텍스트
+                    name: 'start', // 그룹 이름 (사용자 정의 고유값)
+                    childNames: ['start_location', 'start_eqp_name', 'start_port','main_patch_port_concat'],
+                },
+                {
+                    header: 'END', // Nested Header의 텍스트
+                    name: 'end', // 그룹 이름 (사용자 정의 고유값)
+                    childNames: ['end_location', 'end_eqp_name', 'end_port','sub_patch_port_concat'],
+                },
+            ]
+
+
+            // [2] 페이지 로드 시 Grid 초기 구성
+            $(function() {
+                // gridManager를 이용해 그리드 생성
+                gridManager.grid({
+                    url: '/patch/getlist',  // 목록 조회 AJAX URL
+                    columns: tuiColumns,
+                    complexColumns: tuiComplexColumns,
+                    checkbox: false,           // 체크박스 사용 여부
+                    gridElementId: "toastGrid", // 그리드가 삽입될 div ID
+                    tableCountId: "table-cnt", // 하단 개수 표시 엘리먼트 ID
+                    paginationOption: true, // 페이지네이션 사용 여부 (예: false)
+                    data: {                            // 서버로 전달할 추가 파라미터
+                        patchCategory: "수평"
+                    },
+                });
+
+                // 그리드 클릭 이벤트 -> 수정버튼
+                $('#toastGrid').on('click', '.custom-btn', function (event) {
+
+                    const rowData = gridManager.getRowDataByEvent("toastGrid", event);
+
+                    if (rowData) {
+                        popupManager.Prompt({
+                            url: `/cable/agency/cableInfoView?install_id=${encodeURIComponent(rowData.install_id)}`,
+                            title: "",
+                            width: 830,
+                            // height: 880,
+                            height: 700,
+                        })
+                            .then((result) => {
+                                console.log('Popup finished:', result);
+                                // location.reload(); // 팝업 닫힌 뒤 페이지 새로고침
+                                gridManager.updateGrid("toastGrid", {});
+                            })
+                            .catch((error) => {
+                                console.error('Popup error:', error);
+                            });
+                    } else {
+                        alert2("알림", "선택된 데이터를 정상적으로 가져오지 못했습니다.", "error", "확인");
+                    }
+                });
+
+                // 첫 검색
+                //searchButton();
+            });
+
+            // [3] 검색 함수
+            function searchButton() {
+                // 검색 파라미터
+                const param = {
+                    patchCategory: $("#patchCategory").val(),
+                    mainPatchType: $("#mainPatchType").val()
+                };
+                // grid 업데이트 (POST /patch/connection/listAjax)
+                gridManager.updateGrid("toastGrid", param);
+            }
+
+            // [4] 상세 팝업
+            function openDetailPopup(connId) {
+                const url = `/patch/connection/detailPop?connectionId=${connId}`;
+                window.open(url, 'patchConnectionDetail', 'width=600,height=400,scrollbars=yes');
+            }
+
+            function exportExcel() {
+                const data = {
+                    patchCategory: "수평"
+                };
+                fetch('/patch/exportExcel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'patchListTemplate.xlsx';
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                    })
+                    .catch(error => {
+                        console.error('엑셀 파일 다운로드 중 오류 발생:', error);
+                    });
+            }
+
+        </script>
+    </th:block>
+
+</main>
+</html>

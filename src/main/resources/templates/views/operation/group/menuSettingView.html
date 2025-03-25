@@ -1,0 +1,185 @@
+<!--
+File Name : menuSettingView.html
+Description: 운영관리 > 계정그룹 > 메뉴설정 팝업 페이지
+Author: 구명회
+Created On: 2025-02-07
+Revision History:
+  - 2025-02-07:
+      1) 팝업 페이지 퍼블리싱 완료
+      2) 그리드 데이터 매핑
+      3) 권한설정 저장 기능
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/popuplayout}">
+<head>
+<style>
+
+</style>
+</head>
+<main layout:fragment="content" style="margin: 0; padding: 0; background-color: #f5f5f5;">
+    <div style="margin: 25px; background-color: #fff;">
+        <div class="contentCardWrap custom-width-min-500">
+            <div class="flex-row-between" style="padding: 10px 25px;">
+                <p id="inquiry_time" style="margin: 0;">메뉴 관리(보안통신과 통신망관리팀)</p>
+                <div class="custom-button-wrap custom-margin-left-10">
+                    <select id="selectMenuAuth" class="custom-select custom-width-80" style="">
+                        <option value="D">권한없음</option>
+                        <option value="R">읽기</option>
+                        <option value="RU">읽기/수정</option>
+                    </select>
+                    <button type="button" class="custom-btn custom-blue-btn" onclick="saveAuth()">
+                        <img src='/images/icon/etc/register.svg' alt='등록' class='btn-icon'>저장</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="contentCardWrap custom-width-min-500 custom-margin-bottom-20">
+            <div class="custom-border-top-solid custom-padding-bottom-5">
+                <div id="grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+            const tuiColumns = [
+                {
+                    header: '메뉴ID',
+                    name: 'menu_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '메뉴명',
+                    name: 'menu_name',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '권한',
+                    name: 'menu_auth',
+                    align: 'center',
+                    editor: {
+                        type: 'select',
+                        options: {
+                            listItems: [
+                                { text: '읽기/수정', value: 'RU' },
+                                { text: '읽기',     value: 'R' },
+                                { text: '권한없음',  value: 'D' },
+                            ],
+                        },
+                    },
+                    formatter: function({ value }) {
+                        const authMap = {
+                            RU: '읽기/수정',
+                            R: '읽기',
+                            D: '권한없음',
+                        };
+                        return authMap[value] || value;
+                    },
+
+                },
+            ];
+
+            let userId =  /*[[${userId}]]*/;
+            let groupId = /*[[${groupId}]]*/;
+
+            $(function() {
+
+                gridManager.grid({
+                    url: "/operation/group/menuSettingList",
+                    columns: tuiColumns,
+                    gridElementId: "grid",
+                    data: groupId
+                }).then((res) => {
+                    const grid = res.instance;
+
+                    const selectMenuAuth = document.getElementById('selectMenuAuth');
+                    selectMenuAuth.addEventListener('change', (event) => {
+                        const selectedValue = event.target.value; // 새로운 select 값
+                        console.log("selectedValue:", selectedValue);
+                        // grid 데이터에 변경된 option 값 적용
+                        grid.getData().forEach((row, rowKey) => {
+                            grid.setValue(rowKey, 'menu_auth', selectedValue);
+                        });
+                    });
+
+                    // 'menu_auth' 변경 후 이벤트 추가
+                    grid.on('afterChange', (ev) => {
+                        const { changes } = ev;
+                        const change = changes[0];
+
+                        if (change.columnName === 'menu_auth') {
+                            const rowKey = change.rowKey;
+                            const menuId = grid.getValue(rowKey, 'menu_id').toString();
+                            const newValue = change.value;
+
+                            // 변경된 메뉴가 상위 메뉴인지 확인
+                            if (menuId.slice(-2) === '00') {
+                                const prefix = menuId.slice(0, -2);
+
+                                // 하위 메뉴 모두 변경
+                                grid.getData().forEach((row, rk) => {
+                                    const rowMenuId = row.menu_id.toString();
+                                    if (rowMenuId.length === menuId.length && rowMenuId.startsWith(prefix)) {
+                                        grid.setValue(rk, 'menu_auth', newValue);
+                                    }
+                                });
+                            }
+                        }
+
+                    });
+                })
+                .catch((err) => {
+                    console.error(err); // 에러 처리
+                });
+
+            });
+
+
+            function saveAuth(){
+                let updateRows = gridManager.getModifiedRows("grid").updatedRows;
+                if(updateRows.length === 0){
+                    alert2("알림", "변경된 메뉴 권한이 없습니다.", "info", "확인");
+                    return false;
+                }
+
+                modalManager.show({
+                    title: "알림",
+                    html: "정말 변경하시겠습니까?",
+                    icon: "info",
+                    confirmButtonText: "변경",
+                    cancelButtonText: '취소',
+                    showCancelButton: true,
+                    heightAuto: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url : '/operation/group/saveMenuSetting',
+                            type: 'post',
+                            contentType: 'application/json',
+                            data : JSON.stringify({updateRows, groupId, userId}),
+                            dataType : 'JSON',
+                            success: function (res) {
+                                if (!res.errorCode){
+                                    alert('계정그룹 메뉴권한을 저장하는 중 오류가 발생했습니다.');
+                                    return false;
+                                }
+
+                                alert2('알림', '저장이 완료되었습니다.', 'success', '확인');
+                            },
+                            error: function () {
+                                alert('사용자 데이터를 저장하는 중 오류가 발생했습니다.');
+                            }
+                        });
+                    }
+                });
+            }
+
+        </script>
+    </th:block>
+</main>
+</html>

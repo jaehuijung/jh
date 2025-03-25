@@ -1,0 +1,319 @@
+@font-face {
+    font-family: "Pretendard";
+    src: url("../../font/Pretendard/Pretendard-Black.otf") format("otf");
+    font-weight: 900;
+}
+
+@font-face {
+    font-family: "Pretendard";
+    src: url("../../font/Pretendard/Pretendard-Thin.otf") format("otf");
+    font-weight: 100;
+}
+
+@font-face {
+    font-family: "Pretendard";
+    src: url("../../font/Pretendard/Pretendard-SemiBold.otf") format("otf");
+    font-weight: 600;
+}
+
+@font-face {
+    font-family: "Pretendard";
+    src: url("../../font/Pretendard/Pretendard-Regular.otf") format("otf");
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: "Pretendard";
+    src: url("../../font/Pretendard/Pretendard-Medium.otf") format("otf");
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: "Pretendard";
+    src: url("../../font/Pretendard/Pretendard-Light.otf") format("otf");
+    font-weight: 300;
+}
+
+@font-face {
+    font-family: "Pretendard";
+    src: url("../../font/Pretendard/Pretendard-ExtraLight.otf") format("otf");
+    font-weight: 200;
+}
+
+@font-face {
+    font-family: "Pretendard";
+    src: url("../../font/Pretendard/Pretendard-ExtraBold.otf") format("otf");
+    font-weight: 800;
+}
+
+@font-face {
+    font-family: "Pretendard";
+    src: url("../../font/Pretendard/Pretendard-Bold.otf") format("otf");
+    font-weight: 700;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: "Pretendard", sans-serif;
+}
+
+html, body, div, span {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font: inherit;
+    font-family: "Pretendard", sans-serif;
+    font-weight: 300;
+    line-height: 1.2;
+    vertical-align: baseline;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background: #f0f0f0;
+}
+
+
+/* 이미지 배경 스타일 */
+.image-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.image-background img {
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+}
+
+/* 로그인 폼 스타일 */
+.login-form {
+    padding: 20px 40px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 600px;
+}
+
+@media (max-width: 600px) {
+    .login-form {
+        width: 450px;
+    }
+}
+
+.introduce-title {
+    margin: 0px;
+    padding: 30px 0px 30px 0px;
+
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.company-logo {
+    margin: 0px;
+    display: flex;
+    justify-content: center;
+}
+
+.company-logo img{
+    width: 250px;
+}
+
+/* Smart CMS 텍스트 스타일 */
+.introduce-title .smart-cms {
+    font-size: 30px;
+    font-weight: 700;
+    width: max-content;
+    margin: 0;
+}
+
+/* CABLE MANAGEMENT SYSTEM 텍스트 스타일 */
+.introduce-title .cable-management {
+    font-size: 30px;
+    font-weight: 700;
+    width: max-content;
+    margin: 0;
+}
+
+/* 로고 섹션 스타일 */
+.logo-section {
+    text-align: center;
+    padding: 50px 0px 10px 0px;
+}
+
+.logo-section img {
+    width: 180px;
+}
+
+/* 로그인 입력 필드 스타일 */
+.login-inputs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.login-inputs div {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.login-inputs input[type="text"],
+.login-inputs input[type="password"] {
+    width: 100%;
+    height: 50px;
+    padding: 10px 20px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 30px;
+    font-size: 18px;
+    box-sizing: border-box;
+}
+
+/* 아이디 입력 필드에 이미지 삽입을 위한 스타일 */
+.login-inputs input[type="text"] {
+    background: url('/images/icon/login_id.png') no-repeat scroll 10px center;
+    background-size: 20px 20px;
+    padding-left: 40px;
+}
+
+/* 비밀번호 입력 필드에 이미지 삽입을 위한 스타일 */
+.login-inputs input[type="password"] {
+    background: url('/images/icon/login_password.png') no-repeat scroll 10px center;
+    background-size: 20px 20px;
+    padding-left: 40px;
+}
+
+.login-inputs input::placeholder {
+    color: #777;
+    font-weight: 700;
+}
+
+.login-inputs input[type="text"]:focus,
+.login-inputs input[type="password"]:focus {
+    border-color: #555;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+/* 로그인 버튼 스타일 */
+.login-button {
+    border-radius: 40px;
+    background-color: #288FCF;
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+}
+
+.login-button button {
+    background-color: transparent;
+    color: white;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-button:hover {
+    background-color: #688FCF;
+}
+
+.login-button button:focus {
+    outline: none;
+}
+
+.copyright {
+    display: flex;
+    justify-content: center;
+}
+
+.login-ask {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.login-chrome {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 30px;
+}
+
+.login-chrome-download {
+    border-radius: 5px;
+    background-color: #288FCF;
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-left: 7px;
+}
+
+.login-chrome-download button {
+    background-color: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-chrome-download:hover {
+    background-color: #688FCF;
+}
+
+.login-chrome-download button:focus {
+    outline: none;
+}
+
+
+.login-copyright {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-size: 13px;
+    font-weight: 300;
+    margin-top: 30px;
+}

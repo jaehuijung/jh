@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cms.gongju.operation.mapper.UserMapper">
+
+    <!-- 사용자 정보 검색용 공통 쿼리 -->
+    <sql id="searchUserSql">
+        /* searchUserSql */
+        AND tu.`IS_DELETED` = 'N'
+        <if test="searchInput != null and searchInput != ''">
+            AND (
+            BINARY tu.`USER_ID`     Like CONCAT('%', #{searchInput}, '%') OR
+            BINARY tu.`USER_NAME`   Like CONCAT('%', #{searchInput}, '%') OR
+            BINARY tag.`GROUP_NAME` Like CONCAT('%', #{searchInput}, '%')
+            )
+        </if>
+    </sql>
+
+    <!-- 모든 사용자 정보 조회 -->
+    <select id="findAllUsers" parameterType="map" resultType="map">
+        /* findAllUsers */
+        SELECT
+            tu.`USER_ID` user_id,
+            tu.`USER_NAME` user_name,
+            DATE_FORMAT(tu.`REG_DT`, '%Y-%m-%d %H:%i:%s') is_created,
+            DATE_FORMAT(tu.`LAST_LOGIN`, '%Y-%m-%d %H:%i:%s') last_login,
+            tag.GROUP_NAME user_role,
+            tag.GROUP_ID group_id,
+            tag.ID id
+        FROM tb_user tu
+            left join tb_account_group tag
+                on tu.`GROUP_ID` = tag.`ID`
+        WHERE 1=1
+        <include refid="searchUserSql"/>
+        LIMIT #{start}, #{page}
+    </select>
+
+    <!-- 모든 사용자 정보 개수 조회 -->
+    <select id="findAllUsersCount" parameterType="map" resultType="int">
+        /* findAllUsersCount */
+        SELECT count(tu.`USER_ID`)
+        FROM tb_user tu
+            left join tb_account_group tag
+                on tu.`GROUP_ID` = tag.`ID`
+        WHERE 1=1
+        <include refid="searchUserSql"/>
+    </select>
+
+    <!-- 중복 사용자 체크 -->
+    <select id="checkDuplicateId" parameterType="String" resultType="int">
+        /* checkDuplicateId */
+        SELECT count(`USER_ID`)
+        FROM tb_user
+        WHERE BINARY `USER_ID` = #{user_id}
+    </select>
+
+    <!-- 사용자 정보 등록/수정 선택박스 데이터(사용자 권한) -->
+    <select id="getSelectAuthList" resultType="map">
+        /* getSelectAuthList */
+        select
+            `ID` id,
+            `GROUP_ID` group_id,
+            `GROUP_NAME` group_name
+        from tb_account_group g
+        where g.IS_DELETED = 'N'
+    </select>
+
+    <!-- 사용자 정보 등록/수정 선택박스 데이터(첫 페이지) -->
+    <select id="getSelectPageList" parameterType="int" resultType="map">
+        /* getSelectPageList */
+        SELECT
+            m.`MENU_ID` menu_id,
+            m.`PARENT_MENU_ID` parent_menu_id,
+            m.`MENU_NAME` menu_name,
+            m.`MENU_ROLE` menu_role,
+            m.`MENU_PATH` menu_path,
+            m.`MENU_ORDER` menu_order,
+            m.`MENU_AUTH` menu_auth,
+            ma.`R`,
+            ma.`U`
+        FROM
+            tb_group_menu_auth ma
+                JOIN tb_menu m
+                     ON ma.MENU_ID = m.MENU_ID
+                JOIN `tb_account_group` g
+                     ON ma.GROUP_ID = g.ID
+                     and g.IS_DELETED = 'N'
+        WHERE g.ID = #{groupId}
+          and m.`MENU_ORDER` = 2
+          and ma.`R` = 'Y'
+    </select>
+
+    <!-- 사용자 정보 등록 -->
+    <insert id="createUserInfo" parameterType="map">
+        /* createUserInfo */
+        insert into tb_user
+        (   USER_ID,
+            USER_PWD,
+            GROUP_ID,
+            USER_NAME,
+            JOB_TITLE,
+            DEPT_NAME,
+            CONTACT,
+            STATUS,
+            ALLOWED_IPS,
+            FIRST_PAGE,
+            NTOPS_ID,
+            LAST_LOGIN,
+            IS_DELETED,
+            REG_ID,
+            REG_DT,
+            UPD_ID,
+            UPD_DT
+        )
+        values(
+            #{userId},
+            #{password},
+            #{user_role},
+            #{username},
+            #{position},
+            #{department},
+            #{contact},
+            #{status},
+            #{allowedIp},
+            #{first_page},
+            #{ntopsId},
+            null,
+            'N',
+            'admin',
+            now(),
+            null,
+            null
+        )
+    </insert>
+
+    <!-- 사용자 정보 수정 -->
+    <update id="updateUserInfo" parameterType="map">
+        /* updateUserInfo */
+        update tb_user
+        set
+            <if test="password != ''">
+                USER_PWD = #{password},
+            </if>
+            GROUP_ID = #{user_role},
+            USER_NAME = #{username},
+            JOB_TITLE = #{position},
+            DEPT_NAME = #{department},
+            CONTACT = #{contact},
+            STATUS = #{status},
+            ALLOWED_IPS = #{allowedIp},
+            FIRST_PAGE = #{first_page},
+            NTOPS_ID = #{ntopsId},
+            UPD_ID = #{updId},
+            UPD_DT = now()
+        where
+            USER_ID = #{userId}
+    </update>
+
+    <!-- 선택된 사용자 정보 -->
+    <select id="getSelectUser" parameterType="String" resultType="map">
+        /* getSelectUser */
+        select
+            `USER_ID` user_id,
+            `GROUP_ID` group_id,
+            `USER_NAME` user_name,
+            `JOB_TITLE` job_title,
+            `DEPT_NAME` dept_name,
+            `CONTACT` cantact,
+            `STATUS` status,
+            `ALLOWED_IPS` allowed_ips,
+            `FIRST_PAGE` first_page,
+            `NTOPS_ID` ntops_id
+        from tb_user
+        where `IS_DELETED` = 'N'
+        and `USER_ID` = #{userId};
+    </select>
+
+    <!-- 사용자 정보 삭제 -->
+    <update id="deleteUserInfo" parameterType="String">
+        /* deleteUserInfo */
+        update tb_user
+        set `IS_DELETED` = 'Y'
+        where `USER_ID` = #{userId}
+    </update>
+
+    <!-- 엑셀 다운로드용 전체 사용자 목록 -->
+    <select id="getExcelUserInfoTotalList" parameterType="map" resultType="map">
+        /* getExcelUserInfoTotalList */
+        select
+            ROW_NUMBER() OVER (ORDER BY USER_ID) AS `No`,
+            tu.`USER_ID` `사용자 ID`,
+            tu.`NTOPS_ID` `nTOPS ID`,
+            tu.`USER_NAME` `사용자명`,
+            tag.`GROUP_NAME` `사용자권한`,
+            tu.`JOB_TITLE` `직급(직책)`,
+            tu.`CONTACT` `연락처`,
+            tu.`DEPT_NAME` `부서명`,
+            tu.`STATUS` `상태`,
+            tu.`ALLOWED_IPS` `접속 허용 아이피`,
+            tm.`MENU_NAME` `첫 페이지`,
+            tu.`LAST_LOGIN` `마지막 로그인`,
+            tu.`REG_DT` `등록일`,
+            tu.`IS_DELETED` `삭제여부`
+        from
+            tb_user tu
+                join tb_account_group tag
+                     on tu.`GROUP_ID` = tag.ID
+                join tb_menu tm
+                     on tu.`FIRST_PAGE` = tm.`MENU_ID`
+        WHERE 1=1
+        <include refid="searchUserSql"/>
+    </select>
+</mapper>

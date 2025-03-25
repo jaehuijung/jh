@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cms.gongju.operation.mapper.CodeMapper">
+
+    <!-- 코드그룹 정보 검색용 공통 쿼리 -->
+    <sql id="searchCodeSql">
+        /* searchCodeSql */
+        AND `IS_DELETED` = 'N'
+        <if test="groupCode != null and groupCode != ''">
+            AND BINARY `GROUP_CODE`     Like CONCAT('%', #{groupCode}, '%')
+        </if>
+        <if test="groupName != null and groupName != ''">
+            AND BINARY `GROUP_NAME`   Like CONCAT('%', #{groupName}, '%')
+        </if>
+        <if test="codeValue != null and codeValue != ''">
+            AND BINARY `CODE_VALUE`   Like CONCAT('%', #{codeValue}, '%')
+        </if>
+    </sql>
+
+    <!-- 모든 코드그룹 정보 조회 -->
+    <select id="findAllCodes" resultType="map">
+        /* findAllCodes */
+        SELECT
+        ROW_NUMBER() OVER (ORDER BY group_name, code_value) AS `NO`,
+        ID code_group_id,
+        GROUP_CODE group_code,
+        GROUP_NAME group_name,
+        CODE_VALUE code_value,
+        CODE_DESC code_desc,
+        DATE_FORMAT(REG_DT, '%Y-%m-%d %H:%i:%s') AS reg_dt,
+        DATE_FORMAT(UPD_DT, '%Y-%m-%d %H:%i:%s') AS upd_dt
+        FROM
+        tb_common_code
+        WHERE 1=1
+        <include refid="searchCodeSql"/>
+        order by group_name, code_value
+        LIMIT #{start}, #{page}
+    </select>
+
+    <!-- 모든 코드그룹 정보 개수 조회 -->
+    <select id="findAllCodesCount" resultType="int">
+        /* findAllCodesCount */
+        SELECT count(`ID`)
+        FROM tb_common_code
+        WHERE 1=1
+        <include refid="searchCodeSql"/>
+    </select>
+
+    <!-- 중복 코드그룹ID 체크 -->
+    <select id="checkDuplicateId" parameterType="map" resultType="int">
+        /* checkDuplicateId */
+        SELECT COUNT(id)
+        FROM tb_common_code
+        WHERE
+        GROUP_CODE     = #{groupCode}
+        AND GROUP_NAME = #{groupName}
+        AND CODE_VALUE = #{codeValue}
+    </select>
+
+    <insert id="createCodeInfo" parameterType="map">
+        INSERT INTO tb_common_code (
+        GROUP_CODE,
+        GROUP_NAME,
+        CODE_VALUE,
+        CODE_DESC,
+        IS_DELETED,
+        REG_ID,
+        REG_DT
+        )
+        VALUES(
+        #{groupCode},
+        #{groupName},
+        #{codeValue},
+        #{codeDesc},
+        'N',
+        #{userId},
+        now()
+        )
+    </insert>
+
+    <update id="updateCodeInfo" parameterType="map">
+        UPDATE tb_common_code
+        SET
+        <if test="groupCode != null and groupCode != ''">
+            GROUP_CODE = #{groupCode},
+        </if>
+        <if test="groupName != null and groupName != ''">
+            GROUP_NAME = #{groupName},
+        </if>
+        <if test="codeValue != null and codeValue != ''">
+            CODE_VALUE = #{codeValue},
+        </if>
+        <if test="codeDesc != null and codeDesc != ''">
+            CODE_DESC = #{codeDesc},
+        </if>
+        UPD_ID = #{userId},
+        UPD_DT = now()
+        WHERE ID = #{id}
+    </update>
+
+    <update id="deleteCodeInfo" parameterType="map">
+        UPDATE tb_common_code
+        SET
+        IS_DELETED = 'Y',
+        UPD_ID = #{userId},
+        UPD_DT = now()
+        WHERE ID = #{code_group_id}
+    </update>
+
+</mapper>

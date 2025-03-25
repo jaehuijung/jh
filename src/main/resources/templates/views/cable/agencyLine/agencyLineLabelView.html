@@ -1,0 +1,460 @@
+<!--
+File Name : agencyLineLabelView.html
+Description: 선번장관리 > 기관회선관리 > 라벨출력 팝업
+Author: 구명회
+Created On: 2025-02-06
+Revision History:
+  - 2025-02-06: 팝업 페이지 퍼블리싱 완료
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/popuplayout}">
+<head>
+    <style>
+
+        #QRPrintHead {
+            margin: 25px;
+            background-color: #fff;
+        }
+
+        /* 인쇄 카드영역 */
+        .printContentCard {
+            background-color: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        /* 인쇄 카드 */
+        .printContentWrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 250mm; /* 설정된 너비 */
+            height: 12mm; /* 설정된 높이 */
+        }
+
+        /* 개별 영역 구성 */
+        .printArea {
+            display: flex;
+            padding: 3px 5px; /* 안쪽 여백 */
+            border: 1px solid #ccc; /* 윤곽선 */
+            box-sizing: border-box; /* 패딩 포함 크기 설정 */
+            width: 125mm; /* 설정된 너비 */
+        }
+
+        .printArea-right {
+            justify-content: flex-end;
+        }
+
+        .printAreaYellow {
+            background-color: yellow;
+        }
+
+        .printAreaGreen {
+            background-color: green;
+        }
+
+        .printAreaBlue {
+            background-color: dodgerblue;
+        }
+
+        /* .printInfoWrap: 정보 텍스트를 감싸는 스타일 */
+        .printInfoWrap {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-left: 5px; /* 이미지와 간격 */
+        }
+
+        /* 텍스트 레이블 스타일 */
+        .infoLabel {
+            font-size: 9pt; /* 글자 크기 */
+            color: #333; /* 텍스트 색상 */
+            font-weight: normal; /* 기본 텍스트 굵기 */
+        }
+
+        /* 이미지 스타일 */
+        .printImg {
+            width: 1cm; /* 이미지 너비 */
+            height: 1cm; /* 이미지 높이 */
+            margin: 0 2px; /* 이미지 간 간격 */
+            object-fit: contain; /* 이미지 비율 유지 */
+        }
+
+        @media print {
+            @page {
+                size: landscape;
+                margin: 0;
+            }
+
+            /* 전체 화면은 숨기고 */
+            * {
+                visibility: hidden;
+            }
+            /* printTarget 클래스가 붙은 영역만 보이게 함 */
+            .printTarget,
+            .printTarget * {
+                visibility: visible;
+            }
+            .printTarget {
+                position: absolute;
+                width: 100%;
+            }
+
+
+            #QRPrintHead {
+                margin: 0;
+            }
+
+            .printContentCard {
+                top: 1px;
+                padding: 0;
+                border: 0;
+                border-radius: 0;
+                box-shadow: none;
+                overflow-x: visible;
+            }
+
+            .printContentWrap{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .printImg {
+                width: 0.9cm; /* 이미지 너비 */
+                height: 0.9cm; /* 이미지 높이 */
+                margin: 0 2px; /* 이미지 간 간격 */
+                object-fit: contain; /* 이미지 비율 유지 */
+            }
+
+            #labelPrintArea {
+                display: none;
+            }
+
+            #radioArea {
+                display: none;
+            }
+
+            .printArea {
+                border: 0;
+            }
+            .printArea-right {
+                border-left: 1px solid #ccc; /* 윤곽선 */
+            }
+
+        }
+    </style>
+</head>
+<main layout:fragment="content" style="margin: 0; padding: 0; background-color: #f5f5f5;">
+
+    <div id="QRPrintHead" style="">
+
+        <div class="flex-row-between custom-padding-10" id="labelPrintArea">
+            <p style="margin: 0;">라벨출력 설정</p>
+            <div class="custom-button-wrap custom-margin-left-10 flex-row-center">
+                <p style="margin: 0; color: red; font-size: 12px;">※ 출력전 라벨을 확인해 주세요</p>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="printButton()">
+                    <img src='/images/icon/btn/print.svg' alt='출력' class='btn-icon'>출력</button>
+            </div>
+        </div>
+        <div class="tbl-bootstrap-wrap custom-border-top-solid" id="radioArea">
+            <table class="table-hover-delete">
+                <tbody>
+
+                <tr>
+                    <td class="custom-tb-title custom-width-11per">
+                        <label class="custom-tb-title-text">출력타입</label>
+                    </td>
+                    <td class="custom-tb-content ">
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group" value="printContentCard1" onclick="changeRadioContent()" checked>
+                            <span></span>QR 출력
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group" value="printContentCard2" onclick="changeRadioContent()">
+                            <span></span>수평-1
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group" value="printContentCard2" onclick="changeRadioContent()">
+                            <span></span>수평-2
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group" value="printContentCard3" onclick="changeRadioContent()">
+                            <span></span>수직-1
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group" value="printContentCard3" onclick="changeRadioContent()">
+                            <span></span>수직-2
+                        </label>
+                        <!--
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group" value="printContentCard2" onclick="changeRadioContent()">
+                            <span></span>DSTP
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group" value="printContentCard3" onclick="changeRadioContent()">
+                            <span></span>DR-1
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group" value="printContentCard3" onclick="changeRadioContent()">
+                            <span></span>DR-2
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group"><span></span>COT튜브
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group"><span></span>전용회선
+                        </label>
+                        <label class="custom-radio">
+                            <input type="checkbox" id="remove_empty_data" name="remove_empty_data">
+                            <span></span>빈 데이터 제거(0/1)
+                        </label>
+                        -->
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- QR 출력 -->
+        <div class="printContentCard" id="printContentCard1">
+            <div class="printContentWrap">
+                <div class="printArea printAreaYellow">
+                    <img src="/images/char_S.png" alt="start 이미지" class="printImg">
+                    <div class="printInfoWrap">
+                        <div class="infoLabel">
+                            <span>1F2_당직실-지진가속도-음향방송-Fe01</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="printArea printArea-right printAreaYellow">
+                    <div class="printInfoWrap">
+                        <div class="infoLabel">
+                            <span>2L09J2-MANA_HUB(지진가속도)-Fe04</span>
+                        </div>
+                    </div>
+                    <img src="/images/char_E.png" alt="end 이미지" class="printImg">
+                </div>
+            </div>
+            <div class="printContentWrap">
+                <div class="printArea printAreaYellow">
+                    <img src="/images/char_S.png" alt="start 이미지" class="printImg">
+                    <div class="printInfoWrap">
+                        <div class="infoLabel">
+                            <span>1F2_당직실-지진가속도-음향방송-Fe01</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="printArea printArea-right printAreaYellow">
+                    <div class="printInfoWrap">
+                        <div class="infoLabel">
+                            <span>2L09J2-MANA_HUB(지진가속도)-Fe04</span>
+                        </div>
+                    </div>
+                    <img src="/images/char_E.png" alt="end 이미지" class="printImg">
+                </div>
+            </div>
+        </div>
+
+        <!-- 수평-1, 수평-2 -->
+        <div class="printContentCard" id="printContentCard2" style="display: none;">
+
+            <div class="printContentWrap">
+                <div class="printArea printAreaGreen">
+                    <img src="/images/char_S.png" alt="start 이미지" class="printImg">
+                    <div class="printInfoWrap">
+                        <div class="infoLabel">
+                            <span>1F2_당직실-지진가속도-음향방송-Fe01222</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="printArea printArea-right printAreaGreen">
+                    <div class="printInfoWrap">
+                        <div class="infoLabel">
+                            <span>2L09J2-MANA_HUB(지진가속도)-Fe04</span>
+                        </div>
+                    </div>
+                    <img src="/images/char_E.png" alt="end 이미지" class="printImg">
+                </div>
+            </div>
+            <div class="printContentWrap printAreaGreen">
+                <div class="printArea">
+                    <img src="/images/char_S.png" alt="start 이미지" class="printImg">
+                    <div class="printInfoWrap">
+                        <div class="infoLabel">
+                            <span>1F2_당직실-지진가속도-음향방송-Fe01222</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="printArea printArea-right printAreaGreen">
+                    <div class="printInfoWrap">
+                        <div class="infoLabel">
+                            <span>2L09J2-MANA_HUB(지진가속도)-Fe04</span>
+                        </div>
+                    </div>
+                    <img src="/images/char_E.png" alt="end 이미지" class="printImg">
+                </div>
+            </div>
+        </div>
+
+        <!-- 수직-1, 수직-2 -->
+        <div class="printContentCard" id="printContentCard3" style="display: none;">
+            <div class="printContentWrap">
+                <div class="printArea printAreaBlue">
+                    <img src="/images/char_S.png" alt="start 이미지" class="printImg">
+                    <div class="printInfoWrap">
+                        <div class="infoLabel">
+                            <span>1F2_당직실-지진가속도-음향방송-Fe0133333333333333</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="printArea printArea-right printAreaBlue">
+                    <div class="printInfoWrap">
+                        <div class="infoLabel">
+                            <span>2L09J2-MANA_HUB(지진가속도)-Fe04</span>
+                        </div>
+                    </div>
+                    <img src="/images/char_E.png" alt="end 이미지" class="printImg">
+                </div>
+            </div>
+            <div class="printContentWrap">
+                <div class="printArea printAreaBlue">
+                    <img src="/images/char_S.png" alt="start 이미지" class="printImg">
+                    <div class="printInfoWrap">
+                        <div class="infoLabel">
+                            <span>1F2_당직실-지진가속도-음향방송-Fe01333333333333</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="printArea printArea-right printAreaBlue">
+                    <div class="printInfoWrap">
+                        <div class="infoLabel">
+                            <span>2L09J2-MANA_HUB(지진가속도)-Fe04</span>
+                        </div>
+                    </div>
+                    <img src="/images/char_E.png" alt="end 이미지" class="printImg">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+            let data = /*[[${data}]]*/;
+            console.log(data);
+            $(function() {
+                 renderQRHtml()
+            })
+
+            function renderQRHtml() {
+                $.ajax({
+                    url: '/cable/agency/getLabelList',
+                    type: 'post',
+                    contentType: 'application/json',
+                    data : JSON.stringify({data}),
+                    dataType : 'JSON',
+                    success: function (res) {
+                        if (!res.errorCode){
+                            alert('라벨을 생성하는 중 오류가 발생했습니다.');
+                            return false;
+                        }
+
+                        console.log(res);
+
+                        const container = document.getElementById("printContentCard1"); // 컨테이너 엘리먼트
+                        container.innerHTML = ""; // 기존 내용 초기화
+
+                        res.rows.forEach((row, index) => {
+                            // 동적 HTML 생성
+                            const contentWrap = document.createElement("div");
+                            contentWrap.className = "printContentWrap";
+
+                            contentWrap.innerHTML = `
+                                <div class="printArea printAreaYellow">
+                                    <img src="/images/char_S.png" alt="start 이미지" class="printImg">
+                                    <img src="/common/qrImage/${row.start_qr_info}" alt="QR 이미지" class="printImg">
+                                    <div class="printInfoWrap">
+                                        <div class="infoLabel">
+                                            <span>${row.start_text}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="printArea printArea-right printAreaYellow">
+                                    <div class="printInfoWrap">
+                                        <div class="infoLabel">
+                                            <span>${row.end_text}</span>
+                                        </div>
+                                    </div>
+                                    <img src="/common/qrImage/${row.end_qr_info}" alt="QR 이미지" class="printImg">
+                                    <img src="/images/char_E.png" alt="end 이미지" class="printImg">
+                                </div>
+                            `;
+
+                            container.appendChild(contentWrap); // 컨테이너에 추가
+                        });
+
+                        console.log("라벨 생성 완료:", res.rows);
+
+
+                    },
+                    error: function () {
+                        alert('라벨을 생성하는 중 오류가 발생했습니다.');
+                    }
+                });
+
+            }
+
+            function renderVerticalHtml() {
+
+            }
+
+            function renderHorizontalHtml() {
+
+            }
+
+            function printButton(){
+                // 선택된 라디오 버튼의 value를 가져옴 (예: "printContentCard1")
+                const activeRadioValue = document.querySelector('input[name="radio-group"]:checked').value;
+
+                // 기존의 printTarget 클래스를 제거
+                document.querySelectorAll('.printTarget').forEach(function(elem) {
+                    elem.classList.remove('printTarget');
+                });
+
+                // 선택된 콘텐츠에 printTarget 클래스를 추가하여 인쇄 시 보이게 함
+                const printContent = document.getElementById(activeRadioValue);
+                if(printContent) {
+                    printContent.classList.add('printTarget');
+                }
+
+                // 인쇄 실행
+                window.print();
+            }
+
+            function changeRadioContent() {
+                // 모든 카드 숨기기
+                document.getElementById('printContentCard1').style.display = 'none';
+                document.getElementById('printContentCard2').style.display = 'none';
+                document.getElementById('printContentCard3').style.display = 'none';
+
+                // 선택된 라디오 버튼의 값에 해당하는 카드 표시
+                const selectedValue = document.querySelector('input[name="radio-group"]:checked').value;
+                document.getElementById(selectedValue).style.display = 'block';
+            }
+
+        </script>
+    </th:block>
+</main>
+</html>

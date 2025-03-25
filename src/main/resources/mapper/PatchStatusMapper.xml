@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cms.gongju.report.mapper.PatchStatusMapper">
+
+    <select id="selectPatchStatusList" resultType="map" parameterType="map">
+        <!--
+          각 컬럼: rowNum, category, location,
+                  os2Total, os2Used, os2Rate,
+                  om1Total, om1Used, om1Rate,
+                  om3Total, om3Used, om3Rate,
+                  om4Total, om4Used, om4Rate,
+                  utpTotal, utpUsed, utpRate
+        -->
+        SELECT
+        1 AS rowNum,
+        '2F4 (별관2층)' AS category,
+        '1F4' AS location,
+
+        24 AS os2Total,
+        1 AS os2Used,
+        4.2 AS os2Rate,
+
+        24 AS om1Total,
+        2 AS om1Used,
+        8.3 AS om1Rate,
+
+        48 AS om3Total,
+        14 AS om3Used,
+        29.2 AS om3Rate,
+
+        72 AS om4Total,
+        44 AS om4Used,
+        61.1 AS om4Rate,
+
+        24 AS utpTotal,
+        1 AS utpUsed,
+        4.2 AS utpRate
+
+        UNION ALL
+        SELECT
+        2 AS rowNum,
+        '2F4 (별관2층)' AS category,
+        '소계' AS location,
+
+        24 AS os2Total,
+        2 AS os2Used,
+        8.3 AS os2Rate,
+
+        72 AS om1Total,
+        44 AS om1Used,
+        61.1 AS om1Rate,
+
+        168 AS om3Total,
+        72 AS om3Used,
+        42.9 AS om3Rate,
+
+        144 AS om4Total,
+        104 AS om4Used,
+        72.2 AS om4Rate,
+
+        48 AS utpTotal,
+        0 AS utpUsed,
+        0 AS utpRate
+
+        UNION ALL
+        SELECT
+        3 AS rowNum,
+        '3F1 (3 전산실)' AS category,
+        '2F1' AS location,
+
+        96 AS os2Total,
+        48 AS os2Used,
+        50.0 AS os2Rate,
+
+        24 AS om1Total,
+        4 AS om1Used,
+        16.7 AS om1Rate,
+
+        72 AS om3Total,
+        63 AS om3Used,
+        87.5 AS om3Rate,
+
+        24 AS om4Total,
+        0 AS om4Used,
+        0 AS om4Rate,
+
+        1 AS utpTotal,
+        0 AS utpUsed,
+        0.0 AS utpRate
+
+        -- ... 더 필요한 row는 UNION ALL ...
+
+        ORDER BY rowNum
+    </select>
+
+</mapper>

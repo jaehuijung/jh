@@ -1,0 +1,113 @@
+<!--
+File Name : layout.html
+Description: 페이지 공통 레이아웃(헤더 + 왼쪽사이드 + 중앙컨텐츠)
+Author: 구명회
+Created On: 2025-02-06
+-->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <meta charset="UTF-8" http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="icon" type="image/x-icon" href="/images/icon/favicon.png">
+    <title>Cable Management Platform</title>
+
+    <th:block layout:fragment="css">
+        <link th:href="@{/js/common/vendor/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
+        <link th:href="@{/js/common/vendor/bootstrap/css/bootstrap-table.min.css}" rel="stylesheet">
+<!--        <link th:href="@{/js/common/vendor/SweetAlert2/sweetalert2.min.css}" rel="stylesheet">-->
+        <link th:href="@{/js/common/vendor/daterangepicker/daterangepicker.css}" rel="stylesheet">
+        <link th:href="@{/js/common/vendor/tui-pagination/dist/tui-pagination.min.css}" rel="stylesheet">
+        <link th:href="@{/js/common/vendor/tui-grid/dist/tui-grid.min.css}" rel="stylesheet">
+        <link th:href="@{/js/common/vendor/dropzone/dropzone.min.css}" rel="stylesheet">
+
+        <link th:href="@{/css/layout.css}" rel="stylesheet">
+        <link th:href="@{/css/custom-bootstrap.css}" rel="stylesheet">
+        <!-- <link th:href="@{/css/custom-sweetAlert2.css}" rel="stylesheet"> -->
+        <link th:href="@{/css/custom-pikaday.css}" rel="stylesheet">
+        <link th:href="@{/css/custom-toastui.css}" rel="stylesheet">
+        <link th:href="@{/css/custom-modal.css}" rel="stylesheet">
+    </th:block>
+</head>
+
+<body>
+
+<th:block layout:fragment="script">
+    <script th:src="@{/js/common/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/js/common/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/js/common/vendor/bootstrap/js/bootstrap-table.min.js}"></script>
+<!--    <script th:src="@{/js/common/vendor/SweetAlert2/sweetalert2.min.js}"></script>-->
+    <script th:src="@{/js/common/vendor/daterangepicker/moment.min.js}"></script>
+    <script th:src="@{/js/common/vendor/daterangepicker/daterangepicker.js}"></script>
+    <script th:src="@{/js/common/vendor/tui-pagination/dist/tui-pagination.min.js}"></script>
+    <script th:src="@{/js/common/vendor/tui-grid/dist/tui-grid.min.js}"></script>
+    <script th:src="@{/js/common/vendor/dropzone/dropzone.min.js}"></script>
+
+    <script th:src="@{/js/common/custom-menu.js}"></script>
+    <script th:src="@{/js/common/custom-function.js}"></script>
+<!--    <script th:src="@{/js/common/custom-sweetAlert2.js}"></script>-->
+    <script th:src="@{/js/common/custom-bootstrap.js}"></script>
+    <script th:src="@{/js/common/custom-popup.js}"></script>
+    <script th:src="@{/js/common/custom-toastui.js}"></script>
+    <script th:src="@{/js/common/custom-modal.js}"></script>
+</th:block>
+
+<div class="layout">
+    <!-- 1영역: 헤더 -->
+    <div class="header">
+        <div class="header-left">
+            <div id="header-left-logo">
+                <img id="header-left-logo-img" src="/images/logo/logo.png" alt="logo"
+                     onclick="location.href='/cable/agency/view'"/>
+            </div>
+
+            <div id="header-left-content">
+                <p style="margin:0;">케이블 관리시스템</p>
+            </div>
+        </div>
+
+        <div class="header-right">
+
+            <div id="header-right-name">
+                <img src='/images/icon/etc/user.svg' alt='사용자명' style="margin-right: 10px;">
+                <a>
+                    <span th:text="${accountData.userName}+'님'"></span>
+                </a>
+            </div>
+
+            <div id="header-right-logout">
+                <img src='/images/icon/etc/logout.svg' alt='로그아웃' style="margin-right: 10px;">
+                <a href="#" onclick="usrlogout();" style="text-decoration: none; color: white;">
+                    <span>로그아웃</span>
+                </a>
+            </div>
+
+            <form name='logoutform' id='logoutform' method='POST' action='/logout'></form>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- 2영역: 사이드바 -->
+        <div class="sidebar">
+            <!-- 사이드바 메뉴 항목 custom-menu.js 에서 동적생성 -->
+            <div id="menu-items" class="items-section"></div>
+        </div>
+
+        <!-- 3영역: 콘텐츠 -->
+		<div class="content">
+            <div class="pageTitle">
+                <div id="page-title"></div>
+                <nav>
+                    <ol class="breadcrumb" id="breadcrumb"></ol>
+                </nav>
+            </div>
+
+            <th:block layout:fragment="content"></th:block>
+		</div>
+    </div>
+</div>
+
+</body>
+
+</html>

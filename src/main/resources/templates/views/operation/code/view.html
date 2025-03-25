@@ -1,0 +1,429 @@
+<!--
+File Name : view.html
+Description: 운영관리 > 코드그룹
+Author: 구명회
+Created On: 2025-02-20
+Revision History:
+  - 2025-02-20:
+      1) 페이지 퍼블리싱 완료
+      2) 그리드 데이터 매핑
+      3) 등록/삭제 기능
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+
+</head>
+<main layout:fragment="content">
+
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+
+        <div class="flex-row-end custom-padding-10">
+            <p id="inquiry_time" style="margin: 0;">조회시간 : 2025-01-06 15:07:49</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="searchButton()">검색</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="toggleFold()">∨</button>
+            </div>
+        </div>
+
+        <div id="foldableContent" class="tbl-bootstrap-wrap custom-border-top-solid">
+            <table class="table-hover-delete">
+                <tbody>
+                <tr>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="group_code" class="custom-tb-title-text">코드그룹ID</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-28per">
+                        <input id="group_code" name="group_code" class="custom-input" />
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="group_name" class="custom-tb-title-text">코드그룹명</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-28per">
+                        <input id="group_name" name="group_name" class="custom-input" />
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="code_value" class="custom-tb-title-text">코드명</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-28per">
+                        <input id="code_value" name="code_value" class="custom-input" />
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+
+        <div class="flex-row-between custom-padding-10">
+            <p id="table-cnt" class="custom-tui-grid-cnt" style="margin: 0;">전체 개수 : 6개</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="createCodeInfo()">등록</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="deleteCodeInfo()">삭제</button>
+            </div>
+        </div>
+
+        <div class="custom-border-top-solid custom-padding-bottom-5">
+            <div id="grid"></div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+
+            const tuiColumns = [
+                {
+                    header: 'ID',
+                    name: 'code_group_id',
+                    hidden: true
+                },
+                {
+                    header: 'NO',
+                    name: 'NO',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '코드그룹ID',
+                    name: 'group_code',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '코드그룹명',
+                    name: 'group_name',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '코드명',
+                    name: 'code_value',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '코드그룹설명',
+                    name: 'code_desc',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '등록일',
+                    name: 'reg_dt',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '수정일',
+                    name: 'upd_dt',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '수정',
+                    name: 'code_update',
+                    align: 'center',
+                    width: 150,
+                    formatter: function () {
+                        return '<button type="button" class="custom-btn custom-gray-btn">수정</button>';
+                    },
+                },
+            ];
+
+            $(function() {
+                ['#group_code', '#group_name', '#code_value'].forEach(function(selector) {
+                    $(selector).keyup(function(e) {
+                        if (e.which == 13) {
+                            searchButton();
+                        }
+                    });
+                });
+
+                gridManager.grid({
+                    url: "/operation/code/list",
+                    columns: tuiColumns,
+                    checkbox: true,
+                    gridElementId: "grid",
+                    tableCountId : "table-cnt",
+                    paginationOption: true,
+                })
+
+                $('#grid').on('click', '.custom-btn', function (event) {
+                    const rowData = gridManager.getRowDataByEvent("grid", event);
+                    if (rowData) {
+                        console.log('Row Data:', rowData);
+                        createCodeInfo(rowData);
+                    } else {
+                        alert2("알림", "선택된 데이터를 정상적으로 가져오지 못했습니다.", "error", "확인");
+                    }
+                });
+
+            });
+
+            // 코드그룹 정보 검색
+            function searchButton() {
+                let data = {
+                    groupCode : $("#group_code").val().trim(),
+                    groupName : $("#group_name").val().trim(),
+                    codeValue : $("#code_value").val().trim(),
+                }
+                gridManager.updateGrid("grid", data);
+            }
+
+            // 코드그룹 등록/수정 모달
+            function createCodeInfo(row = null){
+                Swal.fire({
+                    html: generateCreateInfoHTML(row),
+                    focusConfirm: false,
+                    confirmButtonText: '저장',
+                    cancelButtonText: '취소',
+                    showCancelButton: true,
+                    allowOutsideClick: false,
+                    heightAuto: false,
+                    customClass: {
+                        popup: 'custom-width'
+                    },
+                    preConfirm: () => {
+                        // const id     = document.getElementById("code_group_id").value.trim();    // 코드그룹 ID
+                        const groupCode = document.getElementById("group_code_modal").value.trim(); // 코드그룹 코드
+                        const groupName = document.getElementById("group_name_modal").value.trim(); // 코드그룹 명
+                        const codeValue = document.getElementById("code_value_modal").value.trim(); // 코드명
+                        const codeDesc  = document.getElementById("code_desc_modal").value.trim();  // 코드설명
+                        const userId    = /*[[${accountData.userId}]]*/; // 현재 사용자 아이디
+
+                        // 중복확인 버튼 상태 확인
+                        const checkButton = document.querySelector("#code_chkbtn");
+                        if (!checkButton.classList.contains("btn-disabled")) {
+                            Swal.showValidationMessage("코드 중복확인이 필요합니다.");
+                            return false;
+                        }
+
+                        // 필수 필드 검증
+                        if (!groupCode) {
+                            Swal.showValidationMessage("코드그룹ID를 입력해주세요.");
+                            return false;
+                        }
+
+                        if (!groupName) {
+                            Swal.showValidationMessage("코드그룹명을 입력해주세요.");
+                            return false;
+                        }
+
+                        if (!codeValue) {
+                            Swal.showValidationMessage("코드명을 입력해주세요.");
+                            return false;
+                        }
+
+                        return {
+                            groupCode, groupName, codeValue, codeDesc, userId
+                        };
+                    },
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const data = result.value;
+                        let url = '/operation/code/create'
+
+                        if (row != null) {
+                            url = '/operation/code/update';
+                            data.id = row.code_group_id;
+                        }
+
+                        $.ajax({
+                            url : url,
+                            type: 'post',
+                            contentType: 'application/json',
+                            data : JSON.stringify(data),
+                            dataType : 'JSON',
+                            success: function (res) {
+                                if (!res.errorCode){
+                                    alert('코드그룹 데이터를 저장하는 중 오류가 발생했습니다.');
+                                    return false;
+                                }
+
+                                alert2('알림', '저장이 완료되었습니다!', 'success', '확인', gridManager.updateGrid("grid"));
+                            },
+                            error: function () {
+                                alert('코드 데이터를 저장하는 중 오류가 발생했습니다.');
+                            }
+                        });
+                    }
+                });
+            }
+
+            // 코드그룹 등록/수정 모달 html 렌더링
+            function generateCreateInfoHTML(row = null){
+                let groupCode = '';
+                let groupName = '';
+                let codeValue = '';
+                let codeDesc  = '';
+
+                if (row != null) {
+                    groupCode = row.group_code;
+                    groupName = row.group_name;
+                    codeValue = row.code_value;
+                    codeDesc  = row.code_desc;
+                }
+
+                return `
+                    <div class="flex-row-between custom-padding-10">
+                        <p style="margin: 0;">코드그룹등록</p>
+                        <div class="custom-button-wrap custom-margin-left-10">
+                            <button type="button" id="code_chkbtn" class="custom-btn custom-blue-btn" onclick="checkCodeId()">중복확인</button>
+                        </div>
+                    </div>
+
+                    <div class="custom-width-400">
+
+                        <div class="tbl-bootstrap-wrap custom-border-top-solid">
+                            <table class="table-hover-delete">
+                                <tbody>
+                                    <tr>
+                                        <td class="custom-tb-title custom-width-5per">
+                                            <label for="group_code_modal" class="custom-tb-title-text custom-font-color-blue">＊ 코드그룹ID</label>
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                            <input id="group_code_modal" name="group_code_modal" class="custom-input custom-width-50per" value="${groupCode}" oninput="resetCheckButton()" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="custom-tb-title custom-width-5per">
+                                            <label for="group_name_modal" class="custom-tb-title-text custom-font-color-blue">* 코드그룹명</label>
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                            <input id="group_name_modal" name="group_name_modal" class="custom-input" value="${groupName}" oninput="resetCheckButton()" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="custom-tb-title custom-width-5per">
+                                            <label for="code_value_modal" class="custom-tb-title-text custom-font-color-blue">* 코드명</label>
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                            <input id="code_value_modal" name="code_value_modal" class="custom-input" value="${codeValue}" oninput="resetCheckButton()" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="custom-tb-title custom-width-5per">
+                                            <label for="code_desc_modal" class="custom-tb-title-text custom-font-color-blue">코드그룹설명</label>
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                            <input id="code_desc_modal" name="code_desc_modal" class="custom-input" value="${codeDesc}"/>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                 `;
+            }
+
+            // 중복확인 버튼 클릭
+            function checkCodeId() {
+                const groupCode = document.getElementById("group_code_modal").value.trim(); // 코드그룹ID
+                const groupName = document.getElementById("group_name_modal").value.trim(); // 코드그룹명
+                const codeValue = document.getElementById("code_value_modal").value.trim(); // 코드명
+
+                if (!groupCode) {
+                    Swal.showValidationMessage("코드그룹ID를 입력해주세요.");
+                    return false;
+                }
+
+                if (!groupName) {
+                    Swal.showValidationMessage("코드그룹명을 입력해주세요.");
+                    return false;
+                }
+
+                if (!codeValue) {
+                    Swal.showValidationMessage("코드명을 입력해주세요.");
+                    return false;
+                }
+
+                $.ajax({
+                    url: "/operation/code/duplicate",
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({groupCode, groupName, codeValue}),
+                    success: function (res) {
+                        let errorCode = res.errorCode;
+
+                        if(!errorCode){
+                            alert2('알림', '문제가 발생하였습니다. </br>관리자에게 문의해주세요.', 'error', '확인');
+                        }
+                        else{
+                            if (res.isDuplicate) {
+                                Swal.showValidationMessage("중복된 코드명 입니다.");
+                                return false;
+                            }
+                            Swal.resetValidationMessage();
+
+                            const checkButton = document.querySelector("#code_chkbtn");
+                            checkButton.textContent = "확인완료";
+                            checkButton.disabled = true;
+                            checkButton.classList.add("btn-disabled");
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert("서버와 통신 중 오류가 발생했습니다.");
+                    }
+                });
+            }
+
+            // 중복확인 후 id가 수정되면 중복확인 비활성화 제거
+            function resetCheckButton(){
+                const checkButton = document.querySelector("#code_chkbtn");
+
+                checkButton.textContent = "중복확인";
+                checkButton.disabled = false;
+                checkButton.classList.remove("btn-disabled");
+            }
+
+            function deleteCodeInfo() {
+                Swal.fire({
+                    title: "알림",
+                    html: "정말 삭제하시겠습니까?",
+                    icon: "info",
+                    confirmButtonText: "삭제",
+                    cancelButtonText: '취소',
+                    showCancelButton: true,
+                    heightAuto: false,
+                }).then((result) => {
+                    if(result.isConfirmed){
+                        let selectedRow = gridManager.getCheckedRows("grid");
+                        if (selectedRow.length === 0) {
+                            alert2("알림", "삭제할 코드그룹을 선택해주세요.", "info", "확인");
+                            return false;
+                        }
+
+                        let userId = /*[[${accountData.userId}]]*/; // 현재 사용자의 그룹 아이디
+
+                        $.ajax({
+                            url: '/operation/code/delete',
+                            method: 'post',
+                            contentType: 'application/json',
+                            data : JSON.stringify({selectedRow, userId}),
+                            dataType : 'JSON',
+                            success: function (res) {
+                                if (!res.errorCode){
+                                    alert('코드그룹 데이터를 삭제하는 중 오류가 발생했습니다.');
+                                    return false;
+                                }
+
+                                alert2('알림', '삭제가 완료되었습니다!', 'success', '확인', gridManager.updateGrid("grid"));
+                            },
+                            error: function () {
+                                alert('코드그룹 데이터를 불러오는 중 오류가 발생했습니다.');
+                            }
+                        });
+                    }
+                });
+            }
+
+        </script>
+    </th:block>
+</main>
+
+</html>

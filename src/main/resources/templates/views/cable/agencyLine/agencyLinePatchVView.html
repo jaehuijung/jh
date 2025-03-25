@@ -1,0 +1,212 @@
+<!--
+File Name : agencyLinePatchVView.html
+Description: 선번장관리 > 기관회선관리 > 케이블 수정 팝업 > 패치 검색(수직)
+Author: 구명회
+Created On: 2025-02-07
+Revision History:
+  - 2025-02-07: 팝업 페이지 퍼블리싱 완료
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/popuplayout}">
+<head>
+    <style>
+
+    </style>
+</head>
+<main layout:fragment="content" style="margin: 0; padding: 0; background-color: #f5f5f5;">
+    <div style="margin: 25px;">
+        <div class="contentCardWrap custom-width-730 custom-margin-bottom-20">
+
+            <div class="flex-row-end custom-padding-10">
+                <div class="custom-button-wrap custom-margin-left-10">
+                    <button type="button" class="custom-btn custom-blue-btn" onclick="searchButton()">
+                        <img src='/images/icon/btn/search.svg' alt='검색' class='btn-icon'>검색</button>
+                </div>
+            </div>
+
+            <div id="foldableContent" class="tbl-bootstrap-wrap custom-border-top-solid">
+                <table class="table-hover-delete">
+                    <tbody>
+                    <tr>
+                        <td colspan="6" class="custom-tb-title custom-width-5per">
+                            <label class="custom-tb-title-text">메인TPS</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="asset_id" class="custom-tb-title-text">위치</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <select id="line_status" name="line_status" class="custom-select">
+                                <option value="1">전체</option>
+                                <!--
+                                <option value="2">테스트 9</option>
+                                <option value="3">테스트 10</option>
+                                -->
+                            </select>
+                        </td>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="asset_id" class="custom-tb-title-text">위치2</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <select id="line_status" name="line_status" class="custom-select">
+                                <option value="1">전체</option>
+                                <!--
+                                <option value="2">테스트 9</option>
+                                <option value="3">테스트 10</option>
+                                -->
+                            </select>
+                        </td>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="asset_id" class="custom-tb-title-text">타입</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <select id="line_status" name="line_status" class="custom-select">
+                                <option value="1">전체</option>
+                                <!--
+                                <option value="2">테스트 9</option>
+                                <option value="3">테스트 10</option>
+                                -->
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" class="custom-tb-title custom-width-5per">
+                            <label class="custom-tb-title-text">서브TPS</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="asset_id" class="custom-tb-title-text">위치</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <select id="line_status" name="line_status" class="custom-select">
+                                <option value="1">전체</option>
+                                <!--
+                                <option value="2">테스트 9</option>
+                                <option value="3">테스트 10</option>
+                                -->
+                            </select>
+                        </td>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="asset_id" class="custom-tb-title-text">위치2</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <select id="line_status" name="line_status" class="custom-select">
+                                <option value="1">전체</option>
+                                <!--
+                                <option value="2">테스트 9</option>
+                                <option value="3">테스트 10</option>
+                                -->
+                            </select>
+                        </td>
+                        <td class="custom-tb-title custom-width-5per">
+                            <label for="asset_id" class="custom-tb-title-text">타입</label>
+                        </td>
+                        <td class="custom-tb-content custom-width-11per">
+                            <select id="line_status" name="line_status" class="custom-select">
+                                <option value="1">전체</option>
+                                <!--
+                                <option value="2">테스트 9</option>
+                                <option value="3">테스트 10</option>
+                                -->
+                            </select>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="contentCardWrap custom-width-730">
+            <div class="flex-row-between custom-padding-10">
+                <p id="table-cnt" class="custom-tui-grid-cnt" style="margin: 0;">전체 개수 : 105개</p>
+            </div>
+
+            <div class="custom-border-top-solid custom-padding-bottom-5">
+                <div id="grid" class="custom-tui-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+
+            $(function() {
+
+                const tuiColumns = [
+                    {
+                        header: 'NO',
+                        name: 'NO',
+                        sortable: true,
+                        align: 'center',
+                    },
+                    {
+                        header: '수직1-1',
+                        name: 'main_patch_port_concat',
+                        sortable: true,
+                        align: 'center',
+                    },
+                    {
+                        header: '수직1-2',
+                        name: 'sub_patch_port_concat',
+                        sortable: true,
+                        align: 'center',
+                    },
+                    {
+                        header: '선택',
+                        name: 'selection',
+                        align: 'center',
+                        formatter: function (data) {
+                            let row = data.row;
+                            console.log(row)
+
+                            // return '<button type="button" class="custom-btn custom-gray-btn">수정</button>';
+
+                            // 패치 등록 여부 컬럼이 없기 때문에 일단 임시로...
+                            // 패치 연결 목록에서 불러오는 리스트의 컬럼 중 하나라도 존재하지 않으면 아직 패치에 회선이 등록되지 않은 것
+                            // 나는 START 좌표를 사용했는데 START 업무명이든 포트든 END 좌표 업무명 포트 아무거나 상관없음
+                            // 패치 연결 목록 쿼리에서 불러오는 리스트 참고 (쿼리 id : selectPatchList)
+                            if (row.start_location === undefined) {
+                                return '<button type="button" class="custom-btn custom-gray-btn">선택</button>';
+                            }
+                            return "";
+
+                        },
+
+                    },
+                ];
+
+
+                gridManager.grid({
+                    url: "/cable/agency/cableInfoPatchList",
+                    columns: tuiColumns,
+                    gridElementId: "grid",
+                    paginationOption: true,
+                    tableCountId : "table-cnt",
+                    data : {
+                        patchCategory: "수직"
+                    }
+                });
+
+                $('#grid').on('click', '.custom-btn', function (event) {
+                    const rowData = gridManager.getRowDataByEvent("grid", event);
+                    if (rowData) {
+                        console.log('Row Data:', rowData);
+                        rowData["type"] = "vertical";
+                        window.returnValue = rowData;
+                        window.close();
+                    } else {
+                        alert2("알림", "선택된 데이터를 정상적으로 가져오지 못했습니다.", "error", "확인");
+                    }
+                });
+
+            });
+
+        </script>
+    </th:block>
+</main>
+</html>

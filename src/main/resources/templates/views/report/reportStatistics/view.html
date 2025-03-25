@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+
+</head>
+<main layout:fragment="content">
+
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+
+        <div class="flex-row-end custom-padding-10">
+            <p id="inquiry_time" style="margin: 0;">조회시간 : 2023-05-11 09:11:30</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="searchButton()">
+                    <img src='/images/icon/btn/search.svg' alt='검색' class='btn-icon btn-icon-small'>검색</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="toggleFold()">∨</button>
+            </div>
+        </div>
+
+        <div id="foldableContent" class="tbl-bootstrap-wrap custom-border-top-solid">
+            <table class="table-hover-delete">
+                <tbody>
+                <tr>
+                    <td class="custom-tb-title custom-width-11per">
+                        <label for="asset_id" class="custom-tb-title-text">기관명</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-37per">
+                        <select id="asset_id" name="asset_id" class="custom-select">
+                            <option value="1">전체</option>
+                            <option value="2">테스트 1</option>
+                            <option value="3">테스트 2</option>
+                        </select>
+                    </td>
+                    <td class="custom-tb-title custom-width-11per">
+                        <label for="asset_id" class="custom-tb-title-text">전산실</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-37per">
+                        <select id="asset_id" name="asset_id" class="custom-select">
+                            <option value="1">전체</option>
+                            <option value="2">테스트 5</option>
+                            <option value="3">테스트 6</option>
+                        </select>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+        <div class="flex-row-between custom-padding-10">
+            <p id="line-table-cnt" style="margin: 0;">1. 기관회선 현황</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-gray-btn" onclick="searchButton()">
+                    <img src='/images/icon/btn/download.svg' height="10" alt='엑셀' class='btn-icon'>엑셀</button>
+            </div>
+        </div>
+
+        <div class="custom-border-top-solid">
+            <div id="agencyLine-container"></div>
+        </div>
+    </div>
+
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+        <div class="flex-row-between custom-padding-10">
+            <p id="type-table-cnt" style="margin: 0;">2. 케이블 타입별 현황</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+            </div>
+        </div>
+
+        <div class="custom-border-top-solid">
+            <div id="cableTyle-container"></div>
+        </div>
+    </div>
+
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+        <div class="flex-row-between custom-padding-10">
+            <p id="work-table-cnt" style="margin: 0;">3. 작업리스트</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <select id="asset_id" name="asset_id" class="custom-select">
+                    <option value="1">전체</option>
+                    <option value="2">테스트 5</option>
+                    <option value="3">테스트 6</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="custom-border-top-solid">
+            <div id="workDetail-container"></div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script th:src="@{/js/report/reportStatistics/view.js}"></script>
+    </th:block>
+</main>
+
+</html>

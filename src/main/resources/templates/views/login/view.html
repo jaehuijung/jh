@@ -1,0 +1,128 @@
+<!--
+File Name : view.html
+Description: 로그인 화면
+Author: 구명회
+Created On: 2025-02-07
+Revision History:
+  - 2025-02-07:
+      1) 페이지 퍼블리싱 완료
+      2) 로그인 기능
+-->
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+	<meta charset="utf-8" http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+	<title>CMS Login</title>
+	<link rel="icon" type="image/x-icon" href="/images/icon/favicon.png">
+	<th:block layout:fragment="css">
+		<link rel="stylesheet" href="/css/login.css" />
+	</th:block>
+
+</head>
+
+<body>
+<div class="image-background">
+	<img src="/images/bg.jpg" alt="Background Image">
+</div>
+
+<div class="login-form">
+	<div class="company-logo">
+		<img src="/images/logo/logo.png" alt="logo" />
+	</div>
+
+	<div class="introduce-title">
+		<p class="smart-cms">Cable</p>
+		<p class="cable-management">Management System</p>
+	</div>
+
+	<form action="/perform_login" id="formDiv" style="width: 100%;" method="post">
+		<div class="login-inputs">
+			<div class="login-input-id">
+				<input type="text" placeholder="아이디" name="username" />
+			</div>
+			<div class="login-input-password">
+				<input type="password" placeholder="비밀번호" name="password" />
+			</div>
+		</div>
+
+		<div class="login-button">
+			<button type="submit">로그인</button>
+		</div>
+
+		<div class="login-ask">
+			<p>※ 이용문의 : 공통인프라유지관리</p>
+		</div>
+	</form>
+
+	<div class="login-chrome">
+		<p style="margin:5px;">※ 1920x1080 해상도의 크롬브라우저에 최적화되어 있습니다.</p>
+		<div style="display: flex; width: 100%; justify-content: center;">
+			<select id="login-chrome-select" class="form-control" style="width: 100%; border-radius: 5px;">
+				<option value="1">Chrome(x64)</option>
+			</select>
+
+			<div class="login-chrome-download">
+				<button id="chrome-download">DOWNLOAD</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="login-copyright">
+		<p style="margin:0px;">COPYRIGHT © 2020 <span style="font-weight: 700;">National Information Resources Service.</span></p>
+		<p style="margin:0px;">ALL RIGHT RESERVED.</p>
+	</div>
+</div>
+</body>
+<th:block layout:fragment="script">
+	<script th:src="@{/js/common/vendor/jquery/jquery.min.js}"></script>
+	<script th:inline="javascript">
+
+		$('#formDiv').submit(function(event) {
+			event.preventDefault();
+			$.ajax({
+				url: '/perform_login',
+				type: 'POST',
+				data: $(this).serialize(),
+				success: function(response) {
+					// 로그인 성공 시 특정 페이지로 이동
+					window.location.href = response.redirectUrl;
+				},
+				error: function(xhr) {
+					if (xhr.status === 400) {
+						alert(xhr.responseJSON.message);
+					} else if (xhr.status === 403) {
+						alert(xhr.responseJSON.message);
+					} else {
+						alert("알 수 없는 오류가 발생했습니다.");
+					}
+				}
+			});
+		});
+
+		document.getElementById("chrome-download").addEventListener("click", function () {
+			$.ajax({
+				url: "/setupDownload",
+				method: "POST",
+				xhrFields: {
+					responseType: 'blob'
+				}
+			}).then(function(res) {
+				const url = window.URL.createObjectURL(res);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = 'ChromeSetup.exe';
+				document.body.appendChild(a);
+				a.click();
+				a.remove();
+				window.URL.revokeObjectURL(url);
+			}).catch(function(err) {
+				alert('파일 다운로드 중 오류가 발생했습니다. 관리자에게 문의하세요.');
+			});
+		});
+
+	</script>
+</th:block>
+
+</html>

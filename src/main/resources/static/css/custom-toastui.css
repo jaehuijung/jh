@@ -1,0 +1,50 @@
+
+.tui-grid-header-area th, .tui-grid-header-area td {
+    background-color: #F5FBFF;
+    text-align: center;
+    font-weight: 500 !important;
+    color: #000;
+    text-decoration: none !important;
+    cursor: default !important;
+}
+
+.tui-grid-body-area th, .tui-grid-body-area td {
+    background-color: #ffffff;
+}
+
+/*
+.tui-grid-body-area .tui-grid-row-even td {
+    background-color: #F5F5F5;
+}
+*/
+
+/* 테이블 행에 마우스 호버 시 배경색 설정 */
+/*
+.tui-grid-body-area .tui-grid-row-odd:hover td ,
+.tui-grid-body-area .tui-grid-row-even:hover td {
+    background-color: #F5F5F5 !important;
+}
+*/
+.tui-grid-body-area td {
+    height: auto;
+}
+
+.tui-grid-row-odd:hover td ,
+.tui-grid-row-even:hover td {
+    background-color: #F5F5F5 !important;
+}
+
+.custom-tui-grid-cnt {
+    font-size: 14px;
+}
+
+.tui-selected-row {
+    /* background-color: #BFBFBF !important; */
+    background-color: #F5F5F5 !important;
+}
+
+/* 테이블 헤더/셀 테두리 밝은 회색 */
+.tui-grid-header-area .tui-grid-cell, .tui-grid-body-area .tui-grid-cell {
+    border: 1px solid rgba(204, 204, 204, 0.6);
+}
+

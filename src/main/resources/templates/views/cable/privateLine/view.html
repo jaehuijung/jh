@@ -1,0 +1,314 @@
+<!--
+File Name : view.html
+Description: 선번장관리 > 전용회선관리
+Author: 구명회
+Created On: 2025-02-07
+Revision History:
+  - 2025-02-07: 페이지 퍼블리싱 완료
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+
+</head>
+<main layout:fragment="content">
+
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+
+        <div class="flex-row-end custom-padding-10">
+            <p id="inquiry_time" style="margin: 0;">조회시간 : 2023-05-11 09:11:30</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="searchButton()">
+                    <img src='/images/icon/btn/search.svg' alt='검색' class='btn-icon btn-icon-small'>검색</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="toggleFold()">∨</button>
+            </div>
+        </div>
+
+        <div id="foldableContent" class="tbl-bootstrap-wrap custom-border-top-solid">
+            <table class="table-hover-delete">
+                <tbody>
+                <tr>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">기관명</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-28per">
+                        <select id="asset_id" name="asset_id" class="custom-select">
+                            <option value="1">전체</option>
+                            <!--
+                            <option value="2">테스트 1</option>
+                            <option value="3">테스트 2</option>
+                            -->
+                        </select>
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">회선사업자</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-28per">
+                        <select id="asset_id" name="asset_id" class="custom-select">
+                            <option value="1">전체</option>
+                            <!--
+                            <option value="2">테스트 5</option>
+                            <option value="3">테스트 6</option>
+                            -->
+                        </select>
+                    </td>
+                    <td class="custom-tb-title custom-width-5per">
+                        <label for="asset_id" class="custom-tb-title-text">회선번호</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-28per">
+                        <input id="asset_id" name="asset_id" class="custom-input" />
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <div class="contentCardWrap custom-width-min-1280">
+
+        <div class="flex-row-between custom-padding-10">
+            <p id="table-cnt" style="margin: 0;">전체 개수 : 279개</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="createCableInfo()">
+                    <img src='/images/icon/etc/register.svg' alt='등록' class='btn-icon'>등록</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="deleteCableInfo()">
+                    <img src='/images/icon/etc/delete.svg' alt='삭제' class='btn-icon'>삭제</button>
+                <button type="button" class="custom-btn custom-gray-btn" onclick="downloadCableInfo()">
+                    <img src='/images/icon/btn/download.svg' alt='엑셀' class='btn-icon'>엑셀</button>
+            </div>
+        </div>
+
+        <div class="custom-border-top-solid custom-padding-bottom-5">
+            <div id="grid"></div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+
+            const tuiColumns = [
+                {
+                    header: 'NO',
+                    name: 'line_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '회선사용기관명',
+                    name: 'line_user_org',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '회선사업자',
+                    name: 'line_operator',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '회선번호',
+                    name: 'line_number',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '회선용도',
+                    name: 'line_purpose',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '상위(기관명)',
+                    name: 'upper_org_name',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '하위(기관명)',
+                    name: 'lower_org_name',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '전송장비#1(좌표)',
+                    name: 'tx_equip1_location',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '전송장비#1(장비명)',
+                    name: 'tx_equip1_name',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '전송장비#1(포트)',
+                    name: 'tx_equip1_port',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '종단장비(좌표)',
+                    name: 'tm_equip_location',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '종단장비(장비명)',
+                    name: 'tm_equip_name',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '종단장비(포트)',
+                    name: 'tm_equip_port',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '개통일',
+                    name: 'open_date',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '수정',
+                    name: 'cable_update',
+                    align: 'center',
+                    width: 150,
+                    formatter: function () {
+                        return '<button type="button" class="custom-btn custom-gray-btn">수정</button>';
+                    },
+                },
+            ];
+
+            $(function() {
+                gridManager.grid({
+                    url: "/cable/private/list",
+                    columns: tuiColumns,
+                    checkbox: true,
+                    gridElementId: "grid",
+                    tableCountId : "table-cnt",
+                    paginationOption: true,
+                })
+
+                $('#grid').on('click', '.custom-btn', function (event) {
+                    const rowData = gridManager.getRowDataByEvent("grid", event);
+                    if (rowData) {
+                        popupManager.Prompt({
+                            url: `/cable/private/cableInfoView?line_id=${encodeURIComponent(rowData.line_id)}`,
+                            title: "",
+                            width: 1000,
+                            height: 1160,
+                        })
+                            .then((result) => {
+                                console.log('Popup finished:', result);
+                                gridManager.updateGrid("grid", {});
+                            })
+                            .catch((error) => {
+                                console.error('Popup error:', error);
+                            });
+                    } else {
+                        alert2("알림", "선택된 데이터를 정상적으로 가져오지 못했습니다.", "error", "확인");
+                    }
+                });
+            });
+
+            function createCableInfo(){
+                let line_id = "create";
+
+                popupManager.Prompt({
+                    url: `/cable/private/cableInfoView?line_id=${encodeURIComponent(line_id)}`,
+                    title: "",
+                    width: 1000,
+                    height: 1160,
+                })
+                    .then((result) => {
+                        console.log('Popup finished:', result);
+                        gridManager.updateGrid("grid", {});
+                    })
+                    .catch((error) => {
+                        console.error('Popup error:', error);
+                    });
+            }
+
+            function deleteCableInfo(){
+                let selectedRow = gridManager.getCheckedRows("grid");
+                if (selectedRow.length === 0) {
+                    alert2("알림", "삭제할 전용회선을 선택해주세요.", "info", "확인");
+                    return false;
+                }
+
+                modalManager.show({
+                    title: "알림",
+                    html: "정말 삭제하시겠습니까?",
+                    icon: "info",
+                    confirmButtonText: "삭제",
+                    cancelButtonText: '취소',
+                    showCancelButton: true,
+                    heightAuto: false,
+                }).then((result) => {
+                    if(result.isConfirmed){
+                        let userId = /*[[${accountData.userId}]]*/; // 현재 사용자 아이디
+                        $.ajax({
+                            url: '/cable/private/delete',
+                            method: 'post',
+                            contentType: 'application/json',
+                            data : JSON.stringify({user_id: userId, rows: selectedRow}),
+                            dataType : 'JSON',
+                            success: function (res) {
+                                if (!res.errorCode){
+                                    alert('사용자 데이터를 삭제하는 중 오류가 발생했습니다.');
+                                    return false;
+                                }
+
+                                alert2('알림', '삭제가 완료되었습니다!', 'success', '확인', gridManager.updateGrid("grid"));
+                            },
+                            error: function () {
+                                alert('사용자 데이터를 불러오는 중 오류가 발생했습니다.');
+                            }
+                        });
+                    }
+                });
+            }
+
+            function downloadCableInfo(){
+                modalManager.show({
+                    title: "알림",
+                    html: "전용회선 정보를 다운로드하시겠습니까?",
+                    icon: "info",
+                    confirmButtonText: "다운로드",
+                    cancelButtonText: '취소',
+                    showCancelButton: true,
+                    //heightAuto: false,
+                }).then((result) => {
+                    if(result.isConfirmed){
+                        alert3("save");
+
+                        $.ajax({
+                            url: "/cable/private/excelDownload",
+                            method: "post",
+                            xhrFields: {
+                                responseType: 'blob'
+                            }
+                        }).done(function(res) {
+                            alert3Close();
+                        }).then(function(res) {
+                            downloadFileFunction(res, 'cablePrivateListTemplate.xlsx');
+                            alert2('알림', '엑셀파일로 다운로드되었습니다.', 'info', '확인');
+                        }).catch(function() {
+                            alert2('알림', '엑셀 파일을 다운로드하는 중 오류가 발생했습니다. 관리자에게 문의하세요.', 'error', '확인');
+                        });
+                    }
+                });
+            }
+
+        </script>
+    </th:block>
+</main>
+
+</html>

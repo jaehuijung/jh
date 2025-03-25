@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cms.gongju.operation.mapper.GroupMapper">
+
+    <!-- 계정그룹 정보 검색용 공통 쿼리 -->
+    <sql id="searchGroupSql">
+        /* searchGroupSql */
+        AND ag.`IS_DELETED` = 'N'
+        <if test="groupId != null and groupId != ''">
+            AND BINARY ag.`GROUP_ID`     Like CONCAT('%', #{groupId}, '%')
+        </if>
+        <if test="groupName != null and groupName != ''">
+            AND BINARY ag.`GROUP_NAME`   Like CONCAT('%', #{groupName}, '%')
+        </if>
+    </sql>
+
+    <!-- 모든 계정그룹 정보 조회 -->
+    <select id="findAllGroups" resultType="map">
+        /* findAllGroups */
+        SELECT
+            ag.`ID` id,
+            ag.`GROUP_ID` group_id,
+            ag.`GROUP_NAME` group_name,
+            ag.`GROUP_DESC` group_description,
+            COUNT(ma.`MENU_ID`) group_cnt
+        FROM
+            tb_account_group ag
+                LEFT JOIN (
+                    select
+                        ma.MENU_ID, ma.GROUP_ID, ma.R, ma.U
+                    from
+                        tb_group_menu_auth ma
+                        join tb_menu m
+                            on ma.MENU_ID = m.MENU_ID
+                            and m.IS_DELETED ='N' ) ma
+                    ON ag.`ID` = ma.`GROUP_ID`
+                    AND ma.`R` = 'Y'
+        WHERE 1=1
+            <include refid="searchGroupSql"/>
+        GROUP BY
+            ag.`ID`, ag.`GROUP_ID`, ag.`GROUP_NAME`, ag.`GROUP_DESC`, ag.`REG_ID`, ag.`REG_DT`, ag.`UPD_ID`, ag.`UPD_DT`
+        LIMIT #{start}, #{page}
+    </select>
+
+    <!-- 모든 계정그룹 정보 개수 조회 -->
+    <select id="findAllGroupsCount" resultType="int">
+        /* findAllGroupsCount */
+        SELECT count(`GROUP_ID`)
+        FROM tb_account_group ag
+        WHERE 1=1
+        <include refid="searchGroupSql"/>
+    </select>
+
+    <!-- 중복 계정그룹ID 체크 -->
+    <select id="checkDuplicateId" parameterType="String" resultType="int">
+        /* checkDuplicateId */
+        SELECT count(`GROUP_ID`)
+        FROM tb_account_group
+        WHERE 1=1
+        AND IS_DELETED = 'N'
+        AND BINARY `GROUP_ID` = #{group_id}
+    </select>
+
+    <!-- 계정그룹 정보 등록 -->
+    <insert id="createGroupInfo" parameterType="map" useGeneratedKeys="true" keyProperty="ID">
+        /* createGroupInfo */
+        insert into tb_account_group
+        (   GROUP_ID,
+            GROUP_NAME,
+            GROUP_DESC,
+            IS_DELETED,
+            REG_ID,
+            REG_DT
+        )
+        values(
+            #{groupId},
+            #{groupName},
+            #{groupDesc},
+            'N',
+            #{userId},
+            now()
+        )
+    </insert>
+
+    <!-- 계정그룹의 메뉴권한 등록 -->
+    <insert id="createGroupMenuInfo" parameterType="map">
+        /* createGroupMenuInfo */
+        insert into tb_group_menu_auth (
+            GROUP_ID,
+            MENU_ID,
+            R,
+            U,
+            REG_ID,
+            REG_DT
+        )
+        select
+            #{ID},
+            m.MENU_ID ,
+            'N',
+            'N',
+            #{userId},
+            now()
+        FROM
+            tb_menu m
+        where
+            m.MENU_ID > 0
+    </insert>
+
+    <!-- 선택된 계정그룹이 등록된 계정 확인 -->
+    <select id="getGroupConnectUser" parameterType="list" resultType="int">
+        /* getGroupConnectUser */
+        SELECT count(USER_ID)
+        FROM tb_user
+        WHERE
+            IS_DELETED = 'N'
+            AND GROUP_ID IN
+            <foreach item="id" collection="ids" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </select>
+
+    <!-- 선택된 계정그룹 제거 플래그 Y로 변경 -->
+    <update id="deleteGroupInfo" parameterType="list">
+        update tb_account_group
+        set IS_DELETED = 'Y'
+        where ID IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 선택된 계정그룹 메뉴권한 제거 ... 2025.03.05 기준 보류 플래그만 변경하도록 -->
+    <delete id="deleteGroupMenuInfo_Temp" parameterType="String">
+        /* deleteGroupMenuInfo */
+        delete from tb_group_menu_auth
+        where GROUP_ID = #{groupId}
+    </delete>
+
+    <!-- 선택된 계정그룹 메뉴권한 조회 -->
+    <select id="getMenuSettingList" parameterType="map" resultType="map">
+        /* getMenuSettingList */
+        select
+            m.MENU_ID menu_id,
+            m.MENU_NAME menu_name,
+            gma.R,
+            gma.U,
+            case
+                when gma.R = 'Y' and gma.U = 'Y' then 'RU'
+                when gma.R = 'Y' and (gma.U is null or gma.U = 'N') then 'R'
+                when (gma.R is null or gma.R = 'N') and (gma.U is null or gma.U = 'N') then 'D'
+            end as menu_auth
+        from tb_group_menu_auth gma
+                 join tb_menu m
+                      on m.MENU_ID = gma.MENU_ID
+                      and m.IS_DELETED = 'N'
+        where gma.GROUP_ID = #{data};
+    </select>
+
+    <!-- 계정그룹 메뉴권한 변경 -->
+    <update id="saveMenuSetting" parameterType="map">
+        /* saveMenuSetting */
+        update tb_group_menu_auth
+        set
+            R = #{R},
+            U = #{U},
+            UPD_ID = #{user_id},
+            UPD_DT = now()
+        where
+            GROUP_ID = #{group_id}
+        and MENU_ID = #{menu_id}
+    </update>
+</mapper>

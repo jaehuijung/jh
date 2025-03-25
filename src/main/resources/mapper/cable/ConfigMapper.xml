@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cms.gongju.cable.mapper.ConfigIdMapper">
+
+    <!-- 설치 검색용 공통 쿼리 -->
+    <sql id="searchInstallSql">
+        /* searchInstallSql */
+        AND i.IS_DELETED = 'N'
+        AND (cwd.START_COMPONENT_ID is null or cwd.END_COMPONENT_ID is null)
+        <if test="start_date != null and start_date != ''">
+            AND DATE_FORMAT(i.INSTALL_DATE, '%Y-%m-%d') BETWEEN #{start_date} AND #{end_date}
+        </if>
+        <if test="start_asset_config != null and start_asset_config != ''">
+            AND (BINARY i.START_ASSET_ID Like CONCAT('%', #{start_asset_config}, '%') OR BINARY st.config_id Like CONCAT('%', #{start_asset_config}, '%'))
+        </if>
+        <if test="start_location != null and start_location != ''">
+            AND BINARY i.START_LOCATION Like CONCAT('%', #{start_location}, '%')
+        </if>
+        <if test="start_eqp_name != null and start_eqp_name != ''">
+            AND BINARY st.eqp_name Like CONCAT('%', #{start_eqp_name}, '%')
+        </if>
+        <if test="end_asset_config != null and end_asset_config != ''">
+            AND (BINARY i.END_ASSET_ID Like CONCAT('%', #{end_asset_config}, '%') OR BINARY et.config_id Like CONCAT('%', #{end_asset_config}, '%'))
+        </if>
+        <if test="end_location != null and end_location != ''">
+            AND BINARY i.END_LOCATION Like CONCAT('%', #{end_location}, '%')
+        </if>
+        <if test="end_eqp_name != null and end_eqp_name != ''">
+            AND BINARY et.eqp_name Like CONCAT('%', #{end_eqp_name}, '%')
+        </if>
+    </sql>
+
+    <!-- 구성ID갱신 리스트 -->
+    <select id="getConfigLineList" parameterType="map" resultType="map">
+        /* getConfigLineList */
+        SELECT
+            i.INSTALL_ID install_id,         /* no */
+            i.REQUEST_ID request_id,         /* 신청 ID */
+            i.WORK_DETAIL_ID work_detail_id, /* 작업자 ID */
+            i.START_ASSET_ID start_asset_id, /* START 자산ID */
+            cwd.START_COMPONENT_ID start_config_id, /* START 구성ID */
+            i.START_LOCATION start_location, /* START 좌표 */
+            i.START_PORT start_port,         /* START 포트 */
+            i.END_ASSET_ID end_asset_id,     /* END 자산ID */
+            cwd.END_COMPONENT_ID end_config_id, /* END 구성ID */
+            i.END_LOCATION end_location,     /* END 좌표 */
+            i.END_PORT end_port,             /* END 포트 */
+            i.CABLE_TYPE cable_type,         /* 케이블타입 */
+            i.CABLE_COLOR cable_color,       /* 케이블색상 */
+            i.CABLE_LENGTH cable_length,     /* 케이블길이 */
+            DATE_FORMAT(i.INSTALL_DATE, '%Y-%m-%d') AS install_date, /* 포설일자 */
+            i.LINE_STATUS line_status,       /* 회선상태 */
+            i.REG_ID reg_id,                 /* 등록자 ID */
+            i.REMARKS remark,               /* 비고 */
+            DATE_FORMAT(i.REG_DT, '%Y-%m-%d %H:%i:%s') AS reg_dt, /* 등록일 */
+            st.eqp_name  AS start_eqp_name,  /* START 업무명 */
+            et.eqp_name  AS end_eqp_name     /* END 업무명 */
+        FROM
+            tb_cable_install i
+            LEFT JOIN tb_cable_work_detail cwd
+                on i.WORK_DETAIL_ID = cwd.WORK_DETAIL_ID
+            LEFT JOIN tb_eqp_temp st
+                ON i.START_ASSET_ID = st.asset_id
+            LEFT JOIN tb_eqp_temp et
+                ON i.END_ASSET_ID   = et.asset_id
+        WHERE 1=1
+        <include refid="searchInstallSql"/>
+        ORDER BY i.INSTALL_ID DESC
+        LIMIT #{start}, #{page}
+    </select>
+
+    <!-- 구성ID갱신 리스트 개수 -->
+    <select id="getConfigLineListCount" parameterType="map" resultType="int">
+        /* getConfigLineListCount */
+        SELECT
+            count(i.INSTALL_ID)
+        FROM
+            tb_cable_install i
+            LEFT JOIN tb_cable_work_detail cwd
+                on i.WORK_DETAIL_ID = cwd.WORK_DETAIL_ID
+            LEFT JOIN tb_eqp_temp st
+                ON i.START_ASSET_ID = st.asset_id
+            LEFT JOIN tb_eqp_temp et
+                ON i.END_ASSET_ID   = et.asset_id
+        where 1=1
+        <include refid="searchInstallSql"/>
+    </select>
+
+    <!-- 갱신할 구성ID 조회 -->
+    <select id="selectUpdateConfigId" parameterType="map" resultType="map">
+        select
+            asset_id,
+            config_id,
+            #{upd_id} upd_id
+        from tb_eqp_temp
+        where
+            asset_id in
+            <foreach item="id" index="index" collection="asset_id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+            and config_id is not null
+    </select>
+
+    <!-- 구성ID 갱신 -->
+    <update id="updateConfigId" parameterType="map">
+        update tb_cable_work_detail
+        set
+            <if test="type == 'start'">
+                START_COMPONENT_ID = #{config_id}
+            </if>
+            <if test="type == 'end'">
+                END_COMPONENT_ID = #{config_id}
+            </if>
+        where
+            <if test="type == 'start'">
+                START_ASSET_ID = #{asset_id}
+            </if>
+            <if test="type == 'end'">
+                END_ASSET_ID = #{asset_id}
+            </if>
+    </update>
+
+    <!-- 엑셀 다운로드용 전용회선 목록 조회 -->
+    <select id="getExcelCableInfoTotalList" resultType="map">
+        /* getExcelCableInfoTotalList */
+        SELECT
+            i.INSTALL_ID `No`,         /* no */
+            i.START_ASSET_ID `START_자산ID`, /* START 자산ID */
+            cwd.START_COMPONENT_ID `START_구성ID`, /* START 구성ID */
+            i.START_LOCATION `START_좌표`, /* START 좌표 */
+            st.eqp_name `START_업무명`,  /* START 업무명 */
+            i.START_PORT `START_포트`,         /* START 포트 */
+            i.END_ASSET_ID `END_자산ID`,     /* END 자산ID */
+            cwd.END_COMPONENT_ID `END_구성ID`, /* END 구성ID */
+            et.eqp_name `END_업무명`,     /* END 업무명 */
+            i.END_LOCATION `END_좌표`,     /* END 좌표 */
+            i.END_PORT `END_포트`,             /* END 포트 */
+            i.CABLE_TYPE `케이블 타입`,         /* 케이블타입 */
+            i.CABLE_COLOR `케이블 색상`,       /* 케이블색상 */
+            i.CABLE_LENGTH `케이블 길이`,     /* 케이블길이 */
+            DATE_FORMAT(i.INSTALL_DATE, '%Y-%m-%d') `포설일자` /* 포설일자 */
+        FROM
+            tb_cable_install i
+            LEFT JOIN tb_cable_work_detail cwd
+                on i.WORK_DETAIL_ID = cwd.WORK_DETAIL_ID
+            LEFT JOIN tb_eqp_temp st
+                ON i.START_ASSET_ID = st.asset_id
+            LEFT JOIN tb_eqp_temp et
+                ON i.END_ASSET_ID   = et.asset_id
+        WHERE 1=1
+        <include refid="searchInstallSql"/>
+        ORDER BY i.INSTALL_ID DESC
+    </select>
+</mapper>

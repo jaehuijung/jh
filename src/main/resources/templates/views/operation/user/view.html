@@ -1,0 +1,675 @@
+<!--
+File Name : view.html
+Description: 운영관리 > 사용자
+Author: 구명회
+Created On: 2025-02-07
+Revision History:
+  - 2025-02-07:
+      1) 페이지 퍼블리싱 완료
+      2) 그리드 데이터 매핑
+      3) 등록/수정/삭제/엑셀 기능
+      4) 검색 기능
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <style>
+        
+    </style>
+</head>
+<main layout:fragment="content">
+
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+
+        <div class="flex-row-end custom-padding-10">
+            <p id="inquiry_time" style="margin: 0;">조회시간 : 2025-01-06 15:03:27</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="searchButton()">
+                    <img src='/images/icon/btn/search.svg' alt='검색' class='btn-icon'>검색</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="toggleFold()">∨</button>
+            </div>
+        </div>
+
+        <div id="foldableContent" class="tbl-bootstrap-wrap custom-border-top-solid">
+            <table class="table-hover-delete">
+                <tbody>
+                <tr>
+                    <td class="custom-tb-title custom-width-11per">
+                        <label for="search_input" class="custom-tb-title-text">검색</label>
+                    </td>
+                    <td class="custom-tb-content">
+                        <input id="search_input" name="search_input" class="custom-input" />
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+
+        <div class="flex-row-between custom-padding-10">
+            <p id="table-cnt" class="custom-tui-grid-cnt" style="margin: 0;">전체 개수 : 0개</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" onclick="userInfo('create')">
+                    <img src='/images/icon/etc/register.svg' alt='등록' class='btn-icon'>등록</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="userInfo('update')">
+                    <img src='/images/icon/btn/tools-fill.svg' alt='수정' class='btn-icon'>수정</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="deleteUserInfo()">
+                    <img src='/images/icon/etc/delete.svg' alt='삭제' class='btn-icon'>삭제</button>
+                <button type="button" class="custom-btn custom-blue-btn" onclick="downloadUserInfo()">
+                    <img src='/images/icon/btn/download.svg' alt='엑셀' class='btn-icon'>엑셀</button>
+            </div>
+        </div>
+
+        <div class="custom-border-top-solid custom-padding-bottom-5">
+            <div id="grid"></div>
+        </div>
+
+    </div>
+
+    <th:block layout:fragment="script">
+        <script th:inline="javascript">
+
+            const tuiColumns = [
+                {
+                    header: 'ID',
+                    name: 'user_id',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '이름',
+                    name: 'user_name',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '마지막 로그인',
+                    name: 'last_login',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '등록일',
+                    name: 'is_created',
+                    sortable: true,
+                    align: 'center',
+                },
+                {
+                    header: '사용권한',
+                    name: 'user_role',
+                    align: 'center',
+                    sortable: true,
+                },
+                {
+                    header: 'ID',
+                    name: 'id',
+                    hidden: true
+                },
+                {
+                    header: '사용권한ID',
+                    name: 'group_id',
+                    hidden: true,
+                },
+            ];
+
+            $(function () {
+
+                getCurrentTime("inquiry_time");
+
+                $('#search_input').keyup(function(e){
+                    if(e.which == 13){
+                        searchButton();
+                    }
+                })
+
+                gridManager.grid({
+                    url: "/operation/user/list",
+                    columns: tuiColumns,
+                    checkbox: true,
+                    gridElementId: "grid",
+                    tableCountId: "table-cnt",
+                    paginationOption: true,
+                });
+            });
+
+            // 사용자 정보 검색
+            function searchButton() {
+                let data = {
+                    searchInput : $("#search_input").val().trim(),
+                }
+                gridManager.updateGrid("grid", data);
+            }
+
+            // 사용자 정보 엑셀 다운로드
+            function downloadUserInfo(){
+                modalManager.show({
+                    title: "알림",
+                    html: "사용자 정보를 다운로드하시겠습니까?",
+                    icon: "info",
+                    confirmButtonText: "다운로드",
+                    cancelButtonText: '취소',
+                    showCancelButton: true,
+                }).then((result) => {
+                    if(result.isConfirmed){
+                        alert3("save");
+
+                        let data = {
+                            searchInput : $("#search_input").val().trim(),
+                        }
+
+                        $.ajax({
+                            url: "/operation/user/excelDownload",
+                            method: "post",
+                            contentType: 'application/json',
+                            data: JSON.stringify(data),
+                            xhrFields: {
+                                responseType: 'blob'
+                            }
+                        }).done(function(res) {
+                            alert3Close();
+                        }).then(function(res) {
+                            downloadFileFunction(res, 'userListTemplate.xlsx');
+                            alert2('알림', '엑셀파일로 다운로드되었습니다.', 'info', '확인');
+                        }).catch(function() {
+                            alert2('알림', '엑셀 파일을 다운로드하는 중 오류가 발생했습니다. 관리자에게 문의하세요.', 'error', '확인');
+                        });
+                    }
+                });
+            }
+
+            // 사용자 정보 삭제
+            function deleteUserInfo() {
+                let selectedRow = gridManager.getCheckedRows("grid");
+                if (selectedRow.length === 0) {
+                    alert2("알림", "삭제할 사용자의 정보를 선택해주세요.", "info", "확인");
+                    return false;
+                }
+
+                let myId = /*[[${accountData.userId}]]*/; // 현재 사용자의 그룹 아이디
+                let userId = selectedRow.map(row => row.user_id);
+
+                // 자신의 아이디가 userId 배열에 포함되어 있는지 확인
+                if (userId.includes(myId)) {
+                    alert2("알림", "자신의 아이디는 삭제할 수 없습니다.", "info", "확인");
+                    return false;
+                }
+
+                modalManager.show({
+                    title: "알림",
+                    html: "정말 삭제하시겠습니까?",
+                    icon: "info",
+                    confirmButtonText: "삭제",
+                    cancelButtonText: '취소',
+                    showCancelButton: true,
+                    heightAuto: false,
+                }).then((result) => {
+                    if(result.isConfirmed){
+                        $.ajax({
+                            url: '/operation/user/delete',
+                            method: 'post',
+                            contentType: 'application/json',
+                            data : JSON.stringify({userId: userId}),
+                            dataType : 'JSON',
+                            success: function (res) {
+                                if (!res.errorCode){
+                                    alert('사용자 데이터를 삭제하는 중 오류가 발생했습니다.');
+                                    return false;
+                                }
+
+                                alert2('알림', '삭제가 완료되었습니다!', 'success', '확인', gridManager.updateGrid("grid"));
+                            },
+                            error: function () {
+                                alert('사용자 데이터를 불러오는 중 오류가 발생했습니다.');
+                            }
+                        });
+                    }
+                });
+            }
+
+            let selectUserAuth = []; // 선택된 사용자 권한
+            let selectUserPage = []; // 선택된 사용자 권한의 첫 페이지
+
+            // 사용자권한 선택박스 변경 시 첫 페이지 항목 변경
+            function updateUserPage(selectedId) {
+                $.ajax({
+                    url: '/operation/user/selectPageList',
+                    type: 'post',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ group_id: selectedId }),
+                    dataType: 'JSON',
+                    success: function (res) {
+                        selectUserPage = res.rows;
+                        const firstPageSelect = document.getElementById("first_page");
+
+                        while (firstPageSelect.options.length > 0) {
+                            firstPageSelect.remove(0);
+                        }
+
+                        selectUserPage.forEach(item => {
+                            const option = document.createElement("option");
+                            option.value = item.menu_id;
+                            option.text = item.menu_name;
+                            firstPageSelect.add(option);
+                        });
+
+                    },
+                    error: function () {
+                        alert('사용자 데이터를 불러오는 중 오류가 발생했습니다.');
+                    }
+                });
+            }
+
+            // 등록/수정 모달 열기 전 선택박스 데이터 조회
+            function userInfo(type) {
+
+                $.ajax({
+                    url: '/operation/user/selectAuthList',
+                    method: 'post',
+                    success: function (res) {
+                        selectUserAuth = res.rows;
+
+                        let userId;
+                        let userAuthId;
+
+                        if (type === 'update') {
+                            let selectedRow = gridManager.getCheckedRows("grid");
+                            if (selectedRow.length === 0) {
+                                alert2("알림", "수정할 사용자의 정보를 선택해주세요.", "info", "확인");
+                                return false;
+                            }
+                            if (selectedRow.length > 1) {
+                                alert2("알림", "하나의 정보만 수정할 수 있습니다.", "info", "확인");
+                                return false;
+                            }
+
+                            userId = selectedRow[0].user_id;
+                            userAuthId = selectedRow[0].id;
+                        }
+
+
+                        if (type === 'create') {
+                            userAuthId = selectUserAuth[0].id;
+                        }
+
+                        $.ajax({
+                            url: '/operation/user/selectPageList',
+                            type: 'post',
+                            contentType: 'application/json',
+                            data: JSON.stringify({group_id: userAuthId}),
+                            dataType: 'JSON',
+                            success: function (res) {
+                                selectUserPage = res.rows;
+                                if (type === 'create') {
+                                    createInfoModal(type, null);
+                                }
+                                else{
+                                    $.ajax({
+                                        url: '/operation/user/selectUser',
+                                        type: 'post',
+                                        contentType: 'application/json',
+                                        data: JSON.stringify({ user_id: userId }),
+                                        dataType: 'JSON',
+                                        success: function (res) {
+                                            createInfoModal(type, res.rows);
+                                        },
+                                        error: function () {
+                                            alert('사용자 데이터를 불러오는 중 오류가 발생했습니다.');
+                                        }
+                                    });
+                                }
+                            },
+                            error: function () {
+                                alert('오류가 발생했습니다.');
+                            }
+                        });
+                    },
+                    error: function () {
+                        alert('오류가 발생했습니다.');
+                    }
+                });
+            }
+
+            // 등록/수정 모달
+            function createInfoModal(type, rows){
+                let title = type=='create' ? '사용자등록' : '사용자수정';
+                modalManager.show({
+                    title: title,
+                    info:'info',
+                    html: generateCreateInfoHTML(type, rows),
+                    focusConfirm: false,
+                    confirmButtonText: '저장',
+                    cancelButtonText: '취소',
+                    showCancelButton: true,
+                    allowOutsideClick: false,
+                    willOpen: () => {
+                        // 선택박스 리스너 등록
+                        const userRoleSelect = document.getElementById("user_role"); // 선택박스 데이터(사용자권한) 가져오기
+                        if (userRoleSelect) {
+                            const handleChange = (event) => {
+                                const selectedOption = event.target.options[event.target.selectedIndex];
+                                const selectedId = selectedOption.value;
+                                updateUserPage(selectedId); // 선택 값에 따른 선택박스 데이터(첫 페이지) 업데이트
+                            };
+
+                            userRoleSelect.addEventListener("change", handleChange);
+                            modalManager.userRoleChangeHandler = handleChange;
+                        }
+                    },
+                    didClose: () => {
+                        // 선택박스 데이터(사용자권한) 리스너 제거
+                        const userRoleSelect = document.getElementById("user_role");
+                        if (userRoleSelect && modalManager.userRoleChangeHandler) {
+                            userRoleSelect.removeEventListener("change", modalManager.userRoleChangeHandler);
+                            modalManager.userRoleChangeHandler = null;
+                        }
+                    },
+                    preConfirm: () => {
+                        const userId = document.getElementById("user_id").value.trim(); // 사용자 ID
+                        const ntopsId = document.getElementById("ntops_id").value.trim(); // nTops ID
+                        const password = document.getElementById("password").value.trim(); // 패스워드
+                        const passwordConfirm = document.getElementById("password_confirm").value.trim(); // 패스워드 확인
+                        const username = document.getElementById("username").value.trim(); // 사용자명
+                        const user_role = document.getElementById("user_role").value.trim(); // 사용자권한
+                        const position = document.getElementById("position").value.trim(); // 직급(직책)
+                        const contact = document.getElementById("contact").value.trim(); // 연락처
+                        const department = document.getElementById("department").value.trim(); // 부서명
+                        const status = document.getElementById("status").value.trim(); // 상태
+                        const allowedIp = document.getElementById("allowed_ip").value.trim(); // 접속 허용 아이피
+                        const first_page = document.getElementById("first_page").value.trim(); // 첫 페이지
+
+                        // 중복확인 버튼 상태 확인
+                        if (type === 'create'){
+                            const checkButton = document.querySelector("#user_id_chkbtn");
+                            if (!checkButton.classList.contains("btn-disabled")) {
+                                modalManager.showValidationMessage("ID 중복확인이 필요합니다.");
+                                return false;
+                            }
+                        }
+
+                        // 필수 필드 검증
+                        if (!userId) {
+                            modalManager.showValidationMessage("사용자ID를 입력해주세요.");
+                            return false;
+                        }
+                        if (!ntopsId) {
+                            modalManager.showValidationMessage("nTOPS ID를 입력해주세요.");
+                            return false;
+                        }
+                        if(type === 'create') {
+                            if (!password) {
+                                modalManager.showValidationMessage("패스워드를 입력해주세요.");
+                                return false;
+                            }
+                            if (!passwordConfirm) {
+                                modalManager.showValidationMessage("패스워드 확인을 입력해주세요.");
+                                return false;
+                            }
+                        }
+                        if (password !== passwordConfirm) {
+                            modalManager.showValidationMessage("패스워드와 패스워드 확인이 일치하지 않습니다.");
+                            return false;
+                        }
+                        if (!username) {
+                            modalManager.showValidationMessage("사용자명을 입력해주세요.");
+                            return false;
+                        }
+                        if (!allowedIp) {
+                            modalManager.showValidationMessage("접속 허용 아이피를 입력해주세요.");
+                            return false;
+                        }
+
+                        return {
+                            userId, ntopsId, password, passwordConfirm, username, user_role, position, contact, department, status, allowedIp, first_page
+                        };
+                    },
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const data = result.value;
+
+                        let url = '/operation/user/create'
+
+                        if (type === 'update') {
+                            url = '/operation/user/update'
+                        }
+
+                        $.ajax({
+                            url : url,
+                            type: 'post',
+                            contentType: 'application/json',
+                            data : JSON.stringify(data),
+                            dataType : 'JSON',
+                            success: function (res) {
+                                if (!res.errorCode){
+                                    alert('사용자 데이터를 저장하는 중 오류가 발생했습니다.');
+                                    return false;
+                                }
+
+                                alert2('알림', '저장이 완료되었습니다!', 'success', '확인', gridManager.updateGrid("grid"));
+                            },
+                            error: function () {
+                                alert('사용자 데이터를 저장하는 중 오류가 발생했습니다.');
+                            }
+                        });
+                    }
+                });
+            }
+
+            // 사용자 등록/수정 모달 html 렌더링
+            function generateCreateInfoHTML(type, rows){
+            console.log("selectUserPage", selectUserPage);
+                const userAuthOptions = `
+                ${selectUserAuth.map(userAuth =>
+                    `<option value="${userAuth.id}" ${type === 'update' && userAuth.id === rows.group_id ? 'selected' : ''}>${userAuth.group_name}</option>`
+                ).join('')}`;
+
+                const userPathOptions = `
+                ${selectUserPage.map(userPath =>
+                    `<option value="${userPath.menu_id}" ${type === 'update' && userPath.menu_id == rows.first_page ? 'selected' : ''}>${userPath.menu_name}</option>`
+                ).join('')}`;
+
+                let message = type === 'update' ?
+                    `<p class="custom-font-size-13" style='margin: 10px 0px 5px 20px;'>* 사용자 수정 시 패스워드칸을 비워두면 기존 비밀번호 그대로 적용됩니다.</p>
+                     <p class="custom-font-size-13" style='margin: 10px 0px 5px 20px;'>* 접속 허용 아이피를 중복으로 등록하기 위해서 구분자(,)를 사용하시면 됩니다. ex) xxx.xxx.xxx.001, xxx.xxx.xxx.002, ...</p>
+                     <p class="custom-font-size-13" style='margin: 10px 0px 20px 20px;'>* 접속 허용 아이피에서 모든 아이피 허용은 *, *.*, 0.0.0.0, 0/0 중 하나를 사용하시면 됩니다.</p>
+                    ` :
+                    `<p class="custom-font-size-13" style='margin: 10px 0px 5px 20px;'>* 한 번이라도 등록되었던 아이디는 삭제되더라도 다시 재등록할 수 없습니다.</p>
+                     <p class="custom-font-size-13" style='margin: 10px 0px 5px 20px;'>* 접속 허용 아이피를 중복으로 등록하기 위해서 구분자(,)를 사용하시면 됩니다. ex) xxx.xxx.xxx.001, xxx.xxx.xxx.002, ...</p>
+                     <p class="custom-font-size-13" style='margin: 10px 0px 20px 20px;'>* 접속 허용 아이피에서 모든 아이피 허용은 *, *.*, 0.0.0.0, 0/0 중 하나를 사용하시면 됩니다.</p>
+                     `;
+
+                return `
+
+                    <div class="custom-width-700">
+
+                        <div class="tbl-bootstrap-wrap custom-border-top-solid">
+                            <table class="table-hover-delete">
+                                <tbody>
+                                    <tr>
+                                        <td colspan="2" class="custom-tb-title custom-width-5per">
+                                            <label for="user_id" class="custom-tb-title-text custom-font-color-blue">＊ 사용자ID</label>
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                            <input id="user_id" name="user_id" class="custom-input custom-width-50per"
+                                                ${type === 'update' ? 'readonly' : 'oninput="resetCheckButton()"'}
+                                                value="${type === 'update' ? rows.user_id : ''}"/>
+                                            ${ type === 'update' ? '' : '<button type="button" id="user_id_chkbtn" class="custom-btn custom-blue-btn" onclick="checkUserId()">중복확인</button>' }
+                                        </td>
+                                        <td colspan="2" class="custom-tb-title custom-width-5per">
+                                            <label for="ntops_id" class="custom-tb-title-text custom-font-color-blue">＊ nTops ID</label>
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                            <input id="ntops_id" name="ntops_id" class="custom-input"
+                                            value="${type === 'update' ? rows.ntops_id : ''}"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="custom-tb-title custom-width-5per">
+                                            <label for="password" class="custom-tb-title-text custom-font-color-blue">＊ 패스워드</label>
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                            <input id="password" name="password" class="custom-input" type="password"/>
+                                        </td>
+                                        <td colspan="2" class="custom-tb-title custom-width-5per">
+                                            <label for="password_confirm" class="custom-tb-title-text custom-font-color-blue">＊ 패스워드 확인</label>
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                            <input id="password_confirm" name="password_confirm" class="custom-input" type="password"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="custom-tb-title custom-width-5per">
+                                            <label for="username" class="custom-tb-title-text custom-font-color-blue">＊ 사용자명</label>
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                            <input id="username" name="username" class="custom-input"
+                                             value="${type === 'update' ? rows.user_name : ''}" />
+                                        </td>
+                                        <td colspan="2" class="custom-tb-title custom-width-5per">
+                                            <label for="user_role" class="custom-tb-title-text">사용자권한</label>
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                            <select id="user_role" name="user_role" class="custom-select">
+                                                ${userAuthOptions}
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="custom-tb-title custom-width-5per">
+                                            <label for="position" class="custom-tb-title-text">직급(직책)</label>
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                            <input id="position" name="position" class="custom-input"
+                                            value="${type === 'update' ? rows.job_title : ''}" />
+                                        </td>
+                                        <td colspan="2" class="custom-tb-title custom-width-5per">
+                                            <label for="contact" class="custom-tb-title-text">연락처</label>
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                            <input id="contact" name="contact" class="custom-input"
+                                            value="${type === 'update' ? rows.cantact : ''}" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="custom-tb-title custom-width-5per">
+                                            <label for="department" class="custom-tb-title-text">부서명</label>
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                            <input id="department" name="department" class="custom-input"
+                                             value="${type === 'update' ? rows.dept_name : ''}" />
+                                        </td>
+                                        <td colspan="2" class="custom-tb-title custom-width-5per">
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td colspan="2" class="custom-tb-title custom-width-5per">
+                                            <label for="status" class="custom-tb-title-text">상태</label>
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                            <select id="status" name="status" class="custom-select">
+                                                <option value="ACTIVE" ${type === 'update' && rows.status === 'ACTIVE' ? 'selected' : ''}>승인</option>
+                                                <option value="DENY" ${type === 'update' && rows.status === 'DENY' ? 'selected' : ''}>반려</option>
+                                            </select>
+                                        </td>
+                                        <td colspan="2" class="custom-tb-content custom-width-5per">
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="custom-tb-title custom-width-5per">
+                                            <label for="allowed_ip" class="custom-tb-title-text custom-font-color-blue">＊ 접속 허용 아이피</label>
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                            <input id="allowed_ip" name="allowed_ip" class="custom-input"
+                                            value="${type === 'update' ? rows.allowed_ips : ''}" />
+                                        </td>
+                                        <td colspan="2" class="custom-tb-content custom-width-5per">
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="custom-tb-title custom-width-5per">
+                                            <label for="first_page" class="custom-tb-title-text">첫 페이지</label>
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                            <select id="first_page" name="first_page" class="custom-select">
+                                                ${userPathOptions}
+                                            </select>
+                                        </td>
+                                        <td colspan="2" class="custom-tb-content custom-width-5per">
+                                        </td>
+                                        <td class="custom-tb-content custom-width-11per">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="custom-width-700 flex-column-left custom-margin-top-10">
+                        ${message}
+                    </div>
+                `;
+            }
+
+            // 중복확인 버튼 클릭
+            function checkUserId() {
+                const userId = document.getElementById("user_id").value;
+                if (!userId) {
+                    modalManager.showValidationMessage("사용자 ID를 입력해주세요.");
+                    return false;
+                }
+
+                $.ajax({
+                    url: "/operation/user/duplicate",
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ userId }),
+                    success: function (res) {
+                        let errorCode = res.errorCode;
+
+                        if(!errorCode){
+                            alert2('알림', '문제가 발생하였습니다. </br>관리자에게 문의해주세요.', 'error', '확인');
+                        }
+                        else{
+                            if (res.isDuplicate) {
+                                modalManager.showValidationMessage("중복된 ID입니다.");
+                                return false;
+                            }
+                            modalManager.resetValidationMessage();
+
+                            const checkButton = document.querySelector("#user_id_chkbtn");
+                            checkButton.textContent = "확인완료";
+                            checkButton.disabled = true;
+                            checkButton.classList.add("btn-disabled");
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert("서버와 통신 중 오류가 발생했습니다.");
+                    }
+                });
+            }
+
+            // 중복확인 후 id가 수정되면 중복확인 비활성화 제거
+            function resetCheckButton(btn){
+                const checkButton = document.querySelector("#user_id_chkbtn");
+
+                checkButton.textContent = "중복확인";
+                checkButton.disabled = false;
+                checkButton.classList.remove("btn-disabled");
+            }
+
+        </script>
+    </th:block>
+</main>
+
+</html>

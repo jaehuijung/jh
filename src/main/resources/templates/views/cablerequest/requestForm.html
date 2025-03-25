@@ -1,0 +1,230 @@
+<!--
+File Name : requestForm.html
+Description: 신청관리 > 포설신청
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<!-- CSS 스타일 추가 -->
+
+
+<main layout:fragment="content">
+    <!-- 요청자 정보 영역 -->
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+        <div class="flex-row-between custom-padding-10">
+            <p style="margin: 0;">요청자정보</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" id="btnTempSave">
+               <!-- <button type="button" class="custom-btn custom-blue-btn"
+                        data-bs-toggle="modal" data-bs-target="#tempSaveTitleModal">-->
+                    <img src='/images/icon/etc/save_temp.svg' alt='임시저장' class='btn-icon'>임시저장
+                </button>
+              <!--  <button type="button" class="custom-btn custom-blue-btn"
+                        data-bs-toggle="modal" data-bs-target="#tempRequestModal">-->
+                    <button type="button" class="custom-btn custom-blue-btn" id="btnTempLoad">
+                    <img src='/images/icon/etc/load_temp.svg' alt='불러오기' class='btn-icon'>불러오기
+                </button>
+                <button type="button" class="custom-btn custom-gray-btn" onclick="saveRequest()">
+                    <img src='/images/icon/etc/register.svg' alt='등록' class='btn-icon'>포설신청 등록</button>
+            </div>
+        </div>
+
+        <div class="tbl-bootstrap-wrap custom-border-top-solid">
+            <table class="table-hover-delete">
+                <tbody>
+                <tr>
+                    <!-- 기관명 -->
+                    <td class="custom-tb-title custom-width-5per">
+                        <label class="custom-tb-title-text">기관명</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <select id="orgNameSelect" name="orgName" class="custom-select">
+                            <option th:each="on : ${orgNames}"
+                                    th:value="${on}"
+                                    th:text="${on}">
+                            </option>
+                        </select>
+                    </td>
+                    <!-- 직급(직책) -->
+                    <td class="custom-tb-title custom-width-5per">
+                        <label class="custom-tb-title-text">직급(직책)</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="positionTitle" name="positionTitle" class="custom-input" />
+                    </td>
+                    <!-- 주무관(명) -->
+                    <td class="custom-tb-title custom-width-5per">
+                        <label class="custom-tb-title-text">주무관(명)</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="officerName" name="officerName" class="custom-input" />
+                    </td>
+                    <!-- 연락처 -->
+                    <td class="custom-tb-title custom-width-5per">
+                        <label class="custom-tb-title-text">연락처</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="officerContact" name="officerContact" class="custom-input" />
+                    </td>
+                </tr>
+                <tr>
+                    <!-- 부서명 -->
+                    <td class="custom-tb-title custom-width-5per">
+                        <label class="custom-tb-title-text">부서명</label>
+                    </td>
+                    <td class="custom-tb-content custom-width-11per">
+                        <input id="deptName" name="deptName" class="custom-input" />
+                    </td>
+                    <!-- 작업목적 -->
+                    <td class="custom-tb-title custom-width-5per">
+                        <label class="custom-tb-title-text">작업목적</label>
+                    </td>
+                    <td colspan="3" class="custom-tb-content custom-width-21per">
+                        <input id="workPurpose" name="workPurpose" class="custom-input" />
+                    </td>
+                    <td colspan="2" class="custom-tb-content custom-width-16per">
+                        <!-- 여분 공간 -->
+                    </td>
+                </tr>
+                <tr>
+                    <!-- 작업일자 -->
+                    <td class="custom-tb-title custom-width-5per">
+                        <label class="custom-tb-title-text">작업일자</label>
+                    </td>
+                    <td colspan="7" class="custom-tb-content">
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group" value="D" checked />
+                            <span></span>금일
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group" value="M" />
+                            <span></span>금월
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="radio-group" value="R" />
+                            <span></span>기간선택
+                        </label>
+                        <input type="text" name="multi-datetime" class="custom-input custom-width-150" />
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 작업자 정보 영역 -->
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+        <div class="flex-row-between custom-padding-10">
+            <p style="margin:0;">작업자정보</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <button type="button" class="custom-btn custom-blue-btn" id="btnOpenWorkerModal">
+                    <img src='/images/icon/btn/search.svg' alt='검색' class='btn-icon btn-icon-small'>검색
+                </button>
+                <button type="button" class="custom-btn custom-gray-btn" onclick="manuallyAddWorker()">
+                    <img src='/images/icon/etc/plus.svg' alt='추가' class='btn-icon btn-icon-small'>추가</button>
+            </div>
+        </div>
+
+        <div class="custom-border-top-solid">
+            <div id="workerParentHot" style="width:100%; height:200px;"></div>
+        </div>
+    </div>
+
+    <!-- 작업내역 영역 -->
+    <div class="contentCardWrap custom-width-min-1280 custom-margin-bottom-20">
+        <div class="flex-row-between custom-padding-10">
+            <p style="margin:0;">작업내역</p>
+            <div class="custom-button-wrap custom-margin-left-10">
+                <!-- 기존 검색 버튼을 새로운 커스텀 모달 함수로 변경 -->
+                <button type="button" class="custom-btn custom-blue-btn" id="btnOpenDetailModal">
+                    <img src='/images/icon/btn/search.svg' alt='검색' class='btn-icon btn-icon-small'>검색
+                </button>
+                <button type="button" class="custom-btn custom-gray-btn" id="addDetailRowBtn">
+                    <img src='/images/icon/etc/plus.svg' alt='추가' class='btn-icon btn-icon-small'>추가</button>
+            </div>
+        </div>
+
+        <div class="custom-border-top-solid">
+            <div id="detailParentHot" style="width:100%; height:200px;"></div>
+        </div>
+    </div>
+
+    <!-- requestForm.html에 숨겨진 HTML 추가 -->
+    <div id="cable-options-template" style="display: none;">
+        <div id="cable-type-options">
+            <select id="template-cable-type" class="custom-select">
+                <option th:each="type : ${cableTypes}"
+                        th:value="${type}"
+                        th:text="${type}">
+                </option>
+            </select>
+        </div>
+        <div id="cable-color-options">
+            <select id="template-cable-color" class="custom-select">
+                <option th:each="clr : ${cableColors}"
+                        th:value="${clr}"
+                        th:text="${clr}"></option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 임시저장 제목입력 모달 -->
+    <div class="modal fade" id="tempSaveTitleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p style="margin: 0;">임시저장</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="tempSaveTitleInput" class="form-label">임시저장 제목</label>
+                        <input type="text" id="tempSaveTitleInput" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="custom-btn custom-blue-btn" id="btnConfirmTempSave">
+                        <img src='/images/icon/etc/register.svg' alt='저장' class='btn-icon'>저장
+                    </button>
+                    <button type="button" class="custom-btn custom-gray-btn" data-bs-dismiss="modal">
+                        <img src='/images/icon/etc/close_1.svg' alt='취소' class='btn-icon btn-icon-small'>취소
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 임시저장 불러오기 모달 -->
+    <!--<div class="modal fade" id="tempRequestModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p style="margin: 0;">임시저장 목록</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="tempRequestHot" style="width:100%; height:300px;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="custom-btn custom-blue-btn" onclick="loadSelectedTempRequest()">
+                        <img src='/images/icon/etc/load_temp.svg' alt='불러오기' class='btn-icon'>불러오기</button>
+                    <button type="button" class="custom-btn custom-gray-btn" data-bs-dismiss="modal">
+                        <img src='/images/icon/etc/close_1.svg' alt='취소' class='btn-icon btn-icon-small'>닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+-->
+    <!-- 숨겨진 기타 필드 -->
+    <input type="hidden" id="hiddenRequestId" />
+
+    <!-- 스크립트 로드 -->
+    <script th:src="@{/js/cablerequest/requestFormHot.js}"></script>
+    <script th:src="@{/js/cablerequest/modalWorkerHot.js}"></script>
+    <script th:src="@{/js/cablerequest/detailModalHot.js}"></script>
+    <script th:src="@{/js/cablerequest/tempRequestModal.js}"></script>
+    <script th:src="@{/js/cablerequest/tempSaveTitleModal.js}"></script>
+</main>
+</html>
